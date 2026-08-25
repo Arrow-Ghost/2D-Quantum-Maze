@@ -1,0 +1,129 @@
+/**
+ * landing.css
+ * Master Stylesheet for the Quantum Maze Cinematic Landing Page
+ */
+
+.landing-master-viewport {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  background-color: #04070c;
+  color: #f1f5f9;
+  overflow-x: hidden;
+}
+
+/* Fixed Full-Screen WebGL Canvas */
+.webgl-canvas-fixed {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 2;
+  pointer-events: none;
+}
+
+/* Subtle Vignette & Scanline Overlay */
+.landing-atmosphere-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 3;
+  pointer-events: none;
+  background: radial-gradient(circle at 50% 50%, transparent 40%, rgba(3, 6, 11, 0.75) 100%);
+}
+
+.landing-scanlines {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 3;
+  pointer-events: none;
+  background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%);
+  background-size: 100% 4px;
+  opacity: 0.35;
+}
+
+/* Continuous Story Container */
+.landing-story-flow {
+  position: relative;
+  z-index: 5;
+  width: 100%;
+}
+
+/* Section Shared Rules */
+.landing-section {
+  position: relative;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Section Headings */
+.section-header-block {
+  text-align: center;
+  margin-bottom: 56px;
+}
+
+.section-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  color: var(--quantum-cyan);
+  margin-bottom: 16px;
+}
+
+.tag-number {
+  display: inline-block;
+  padding: 2px 8px;
+  background: rgba(0, 240, 255, 0.15);
+  border: 1px solid var(--quantum-cyan);
+  border-radius: 4px;
+  font-weight: 700;
+}
+
+.section-main-heading {
+  font-family: var(--font-display);
+  font-size: clamp(34px, 5.5vw, 62px);
+  font-weight: 900;
+  line-height: 1.05;
+  letter-spacing: 0.03em;
+  color: #f8fafc;
+  margin-bottom: 16px;
+}
+
+.section-sub-heading {
+  max-width: 640px;
+  margin: 0 auto;
+  font-size: clamp(14px, 1.2vw, 17px);
+  line-height: 1.6;
+  color: #94a3b8;
+}
+
+.text-cyan-glow {
+  color: var(--quantum-cyan);
+  text-shadow: 0 0 30px rgba(0, 240, 255, 0.4);
+}
+
+.text-emerald-glow {
+  color: var(--quantum-emerald);
+  text-shadow: 0 0 30px rgba(0, 245, 155, 0.4);
+}
+
+/* Micro-interaction transitions */
+a, button {
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Reduced Motion Override */
+@media (prefers-reduced-motion: reduce) {
+  .landing-scanlines, .telemetry-pulse, .scroll-cue-dot {
+    animation: none !important;
+  }
+}

@@ -1,0 +1,662 @@
+---
+import Navbar from '../components/Navbar.astro';
+import QuantumHUD from '../components/QuantumHUD.astro';
+import QuantumCircuit from '../components/QuantumCircuit.astro';
+import QuantumState from '../components/QuantumState.astro';
+import InteractionModal from '../components/InteractionModal.astro';
+import PauseMenu from '../components/PauseMenu.astro';
+import VictoryModal from '../components/VictoryModal.astro';
+import FailureModal from '../components/FailureModal.astro';
+import DebugPanel from '../components/DebugPanel.astro';
+import '../styles/global.css';
+import '../styles/game.css';
+import '../styles/hud.css';
+import '../styles/animations.css';
+---
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QUANTUM MAZE | Dynamic Containment Experiment</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+</head>
+<body>
+  <div class="game-layout">
+    <Navbar activePage="game" />
+    <QuantumHUD />
+
+    <main class="game-main-container">
+      <!-- Left Sidebar: Mission Objectives & Quantum State -->
+      <aside class="left-sidebar">
+        <div class="glass-panel" style="padding: 14px;">
+          <div class="panel-header">
+            <span class="panel-title">Mission Protocol</span>
+            <span class="quantum-badge badge-emerald" id="briefingDiffBadge">EASY</span>
+          </div>
+
+          <div style="margin-bottom: 10px;">
+            <span class="hud-label" style="display: block; margin-bottom: 4px;">Current Objectives:</span>
+            <ul id="objectiveList" style="list-style: none; font-family: var(--font-mono); font-size: 11px; display: flex; flex-direction: column; gap: 4px; color: #cbd5e1;">
+              <li id="objStep1" style="color: #ffb703;">→ 1. Reach Quantum Checkpoint</li>
+              <li id="objStep2" style="color: #64748b;">○ 2. Activate Terminal Console</li>
+              <li id="objStep3" style="color: #64748b;">○ 3. Stabilize Exit (>= 70%)</li>
+              <li id="objStep4" style="color: #64748b;">○ 4. Escape through Exit Portal</li>
+            </ul>
+          </div>
+
+          <div style="background: rgba(0,0,0,0.3); border-radius: 6px; padding: 8px; border: 1px solid var(--border-subtle);">
+            <span class="hud-label" style="display: block; margin-bottom: 2px;">Sector Mechanics:</span>
+            <p id="missionBriefingText" style="font-size: 11px; line-height: 1.4; color: #94a3b8;">
+              Dynamic topology shifts after every move. Fixed exit anchor.
+            </p>
+          </div>
+        </div>
+
+        <QuantumState />
+      </aside>
+
+      <!-- Center: 2D Laboratory Canvas Viewport -->
+      <section class="canvas-wrapper">
+        <canvas id="gameCanvas" width="980" height="600"></canvas>
+        <div class="scanlines-overlay"></div>
+
+        <!-- In-game notification toast -->
+        <div id="gameToast" class="message-toast toast-info" style="display: none;">
+          Quantum system initialized.
+        </div>
+      </section>
+
+      <!-- Right Sidebar: Circuit & Quantum Terminal Controls -->
+      <aside class="right-sidebar">
+        <QuantumCircuit />
+
+        <div class="glass-panel" style="padding: 14px;">
+          <div class="panel-header">
+            <span class="panel-title">Quantum Operator Terminal</span>
+            <span class="quantum-badge badge-amber" id="terminalStatusBadge">LOCKED</span>
+          </div>
+
+          <div id="terminalPromptBox" style="text-align: center; padding: 12px; background: rgba(0,0,0,0.3); border-radius: 8px; border: 1px dashed var(--border-subtle);">
+            <p id="terminalPromptText" style="font-size: 11px; color: #94a3b8; margin-bottom: 8px; line-height: 1.4;">
+              Reach a <strong>Quantum Checkpoint</strong> to unlock terminal controls.
+            </p>
+            <button id="btnOpenTerminalDirect" class="btn-quantum" style="width: 100%; font-size: 12px;" disabled>
+              Open Terminal Console [E]
+            </button>
+          </div>
+        </div>
+      </aside>
+    </main>
+
+    <!-- Modals -->
+    <InteractionModal />
+    <PauseMenu />
+    <VictoryModal />
+    <FailureModal />
+    <DebugPanel />
+  </div>
+
+  <script>
+    import { GameEngine } from '../lib/game/gameEngine';
+    import { MazeRenderer } from '../lib/game/renderer';
+    import { LEVELS } from '../data/levels';
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const levelId = urlParams.get('level') || 'level-01';
+
+      const canvas = document.getElementById('gameCanvas') as HTMLCanvasElement;
+      if (!canvas) return;
+
+      const renderer = new MazeRenderer(canvas);
+
+      // HUD elements
+      const hudLevelNumber = document.getElementById('hudLevelNumber');
+      const hudLevelTitle = document.getElementById('hudLevelTitle');
+      const hudTime = document.getElementById('hudTime');
+      const hudMoveCount = document.getElementById('hudMoveCount');
+      const hudWallCount = document.getElementById('hudWallCount');
+      const hudMazeStability = document.getElementById('hudMazeStability');
+      const hudQuantumStatus = document.getElementById('hudQuantumStatus');
+      const hudEnergyFill = document.getElementById('hudEnergyFill');
+      const hudEnergyValue = document.getElementById('hudEnergyValue');
+      const hudMeasurementCount = document.getElementById('hudMeasurementCount');
+      const hudExitProb = document.getElementById('hudExitProb');
+      const hudExitStatus = document.getElementById('hudExitStatus');
+      const hudGateInventory = document.getElementById('hudGateInventory');
+
+      // Objectives & Briefing
+      const objStep1 = document.getElementById('objStep1');
+      const objStep2 = document.getElementById('objStep2');
+      const objStep3 = document.getElementById('objStep3');
+      const objStep4 = document.getElementById('objStep4');
+      const missionBriefingText = document.getElementById('missionBriefingText');
+      const briefingDiffBadge = document.getElementById('briefingDiffBadge');
+      const terminalStatusBadge = document.getElementById('terminalStatusBadge');
+      const terminalPromptText = document.getElementById('terminalPromptText');
+      const btnOpenTerminalDirect = document.getElementById('btnOpenTerminalDirect') as HTMLButtonElement;
+
+      // Quantum State & Circuit displays
+      const diracFormulaDisplay = document.getElementById('diracFormulaDisplay');
+      const qubitProbabilitiesList = document.getElementById('qubitProbabilitiesList');
+      const basisStatesList = document.getElementById('basisStatesList');
+      const circuitWiresContainer = document.getElementById('circuitWiresContainer');
+      const asciiCircuitDisplay = document.getElementById('asciiCircuitDisplay');
+      const circuitQubitBadge = document.getElementById('circuitQubitBadge');
+
+      const gameToast = document.getElementById('gameToast');
+
+      // Modals
+      const interactionModal = document.getElementById('interactionModal');
+      const btnCloseInteractModal = document.getElementById('btnCloseInteractModal');
+      const btnCancelInteract = document.getElementById('btnCancelInteract');
+      const btnExecuteGate = document.getElementById('btnExecuteGate');
+      const selectTargetQubit = document.getElementById('selectTargetQubit') as HTMLSelectElement;
+      const selectControlQubit = document.getElementById('selectControlQubit') as HTMLSelectElement;
+      const controlQubitGroup = document.getElementById('controlQubitGroup');
+      const modalGateGrid = document.getElementById('modalGateGrid');
+      const selectedGateName = document.getElementById('selectedGateName');
+      const selectedGateCost = document.getElementById('selectedGateCost');
+      const selectedGateDesc = document.getElementById('selectedGateDesc');
+
+      const pauseMenuModal = document.getElementById('pauseMenuModal');
+      const btnPause = document.getElementById('btnPause');
+      const btnResume = document.getElementById('btnResume');
+      const btnRestartLevel = document.getElementById('btnRestartLevel');
+
+      const victoryModal = document.getElementById('victoryModal');
+      const victoryTotalScore = document.getElementById('victoryTotalScore');
+      const victoryTime = document.getElementById('victoryTime');
+      const victoryTimeBonus = document.getElementById('victoryTimeBonus');
+      const victoryGatesUsed = document.getElementById('victoryGatesUsed');
+      const victoryEfficiency = document.getElementById('victoryEfficiency');
+      const victoryProbability = document.getElementById('victoryProbability');
+      const victoryEnergy = document.getElementById('victoryEnergy');
+      const btnNextLevel = document.getElementById('btnNextLevel');
+      const btnReplayLevel = document.getElementById('btnReplayLevel');
+
+      const failureModal = document.getElementById('failureModal');
+      const failureReasonText = document.getElementById('failureReasonText');
+      const btnRetryLevel = document.getElementById('btnRetryLevel');
+
+      const debugPanel = document.getElementById('debugPanel');
+      const btnCloseDebug = document.getElementById('btnCloseDebug');
+      const debugSessionId = document.getElementById('debugSessionId');
+      const debugPlayerPos = document.getElementById('debugPlayerPos');
+      const debugEnergy = document.getElementById('debugEnergy');
+      const debugMeasurements = document.getElementById('debugMeasurements');
+      const debugExitUnlocked = document.getElementById('debugExitUnlocked');
+      const debugExitReason = document.getElementById('debugExitReason');
+      const btnDebugAddEnergy = document.getElementById('btnDebugAddEnergy');
+      const btnDebugUnlockExit = document.getElementById('btnDebugUnlockExit');
+
+      let selectedModalGate = 'H';
+
+      // Toast notification helper
+      let toastTimeout: number | null = null;
+      function showToast(msg: string, type: 'info' | 'success' | 'warning' | 'error' = 'info') {
+        if (!gameToast) return;
+        gameToast.textContent = msg;
+        gameToast.className = `message-toast toast-${type}`;
+        gameToast.style.display = 'block';
+        if (toastTimeout) clearTimeout(toastTimeout);
+        toastTimeout = window.setTimeout(() => {
+          gameToast.style.display = 'none';
+        }, 3000);
+      }
+
+      // Initialize Game Engine
+      const engine = new GameEngine({
+        onStateUpdate: (eng) => {
+          updateUI(eng);
+        },
+        onWallTransition: (newWalls) => {
+          renderer.triggerWallTransition(newWalls);
+        },
+        onVictory: (report) => {
+          if (victoryModal) {
+            victoryModal.style.display = 'flex';
+            if (victoryTotalScore) victoryTotalScore.textContent = report.totalScore.toString();
+            if (victoryTime) victoryTime.textContent = `${Math.floor(report.elapsedTime / 60)}:${(report.elapsedTime % 60).toFixed(1).padStart(4, '0')}`;
+            if (victoryTimeBonus) victoryTimeBonus.textContent = `+${report.timeBonus}`;
+            if (victoryGatesUsed) victoryGatesUsed.textContent = report.gatesUsed.toString();
+            if (victoryEfficiency) victoryEfficiency.textContent = `+${report.quantumEfficiency}`;
+            if (victoryProbability) victoryProbability.textContent = `${Math.round(report.finalProbability * 100)}%`;
+            if (victoryEnergy) victoryEnergy.textContent = `${report.energyRemaining} QE`;
+          }
+        },
+        onFailure: (reason) => {
+          if (failureModal) {
+            failureModal.style.display = 'flex';
+            if (failureReasonText) failureReasonText.textContent = reason;
+          }
+        },
+        onInteractPrompt: (terminal) => {
+          if (btnOpenTerminalDirect) {
+            const hasUnlockedTerminals = engine.terminals.some((t) => t.unlocked);
+            btnOpenTerminalDirect.disabled = !hasUnlockedTerminals && !terminal;
+            if (terminal && terminal.unlocked) {
+              btnOpenTerminalDirect.textContent = `Open ${terminal.label} [E]`;
+            } else if (hasUnlockedTerminals) {
+              btnOpenTerminalDirect.textContent = `Open Quantum Console [E]`;
+            } else {
+              btnOpenTerminalDirect.textContent = `Reach Checkpoint to Unlock`;
+            }
+          }
+        },
+        onMessage: (msg, type) => {
+          showToast(msg, type);
+        },
+      });
+
+      function updateUI(eng: GameEngine) {
+        if (hudLevelNumber) hudLevelNumber.textContent = eng.currentLevel.levelNumber.toString().padStart(2, '0');
+        if (hudLevelTitle) hudLevelTitle.textContent = eng.currentLevel.title;
+        if (briefingDiffBadge) briefingDiffBadge.textContent = eng.currentLevel.difficulty;
+        if (missionBriefingText) missionBriefingText.textContent = eng.currentLevel.briefing;
+
+        // Elapsed time
+        const mins = Math.floor(eng.elapsedTime / 60);
+        const secs = (eng.elapsedTime % 60).toFixed(1);
+        if (hudTime) hudTime.textContent = `${mins.toString().padStart(2, '0')}:${secs.padStart(4, '0')}`;
+
+        // Moves & Walls
+        if (hudMoveCount) hudMoveCount.textContent = eng.movesUsed.toString();
+        if (hudWallCount) hudWallCount.textContent = `${eng.walls.length} / ${eng.currentLevel.wallCount} Walls`;
+        if (hudMazeStability) hudMazeStability.textContent = 'DYNAMIC';
+
+        // Quantum State Status
+        if (hudQuantumStatus) {
+          const targetQubit = eng.currentLevel.exitPosition.targetQubit;
+          const qp = eng.stateInfo?.qubit_probabilities[targetQubit];
+          const hasCollapsed = qp?.collapsed_state !== null && qp?.collapsed_state !== undefined;
+          const hasEntangled = eng.stateInfo?.qubit_probabilities.some((p) => p.is_entangled);
+
+          if (eng.exitUnlocked) {
+            hudQuantumStatus.textContent = 'STABILIZED';
+            hudQuantumStatus.className = 'quantum-badge badge-emerald';
+          } else if (hasCollapsed) {
+            hudQuantumStatus.textContent = `COLLAPSED |${qp?.collapsed_state}⟩`;
+            hudQuantumStatus.className = 'quantum-badge badge-cyan';
+          } else if (hasEntangled) {
+            hudQuantumStatus.textContent = 'ENTANGLED';
+            hudQuantumStatus.className = 'quantum-badge badge-purple';
+          } else {
+            hudQuantumStatus.textContent = 'SUPERPOSITION';
+            hudQuantumStatus.className = 'quantum-badge badge-purple';
+          }
+        }
+
+        // Energy Bar
+        const energyPct = Math.max(0, Math.min(100, (eng.energy / eng.currentLevel.initialEnergy) * 100));
+        if (hudEnergyFill) {
+          hudEnergyFill.style.width = `${energyPct}%`;
+          hudEnergyFill.className = `energy-fill ${energyPct < 25 ? 'low' : ''}`;
+        }
+        if (hudEnergyValue) hudEnergyValue.textContent = `${eng.energy} QE`;
+
+        // Measurements
+        if (hudMeasurementCount) {
+          hudMeasurementCount.textContent = `${eng.measurementsUsed} / ${eng.currentLevel.measurementBudget}`;
+        }
+
+        // Exit Probability & Status
+        const probPct = (eng.exitProbability * 100).toFixed(1);
+        if (hudExitProb) hudExitProb.textContent = `${probPct}%`;
+
+        if (hudExitStatus) {
+          if (eng.exitUnlocked) {
+            hudExitStatus.className = 'quantum-badge badge-emerald';
+            hudExitStatus.textContent = 'UNLOCKED';
+          } else {
+            hudExitStatus.className = 'quantum-badge badge-amber';
+            hudExitStatus.textContent = 'LOCKED';
+          }
+        }
+
+        // Mission objectives
+        const allCpActive = eng.checkpoints.every((cp) => cp.activated);
+        const termsUnlocked = eng.terminals.some((t) => t.unlocked);
+        const reqProb = eng.currentLevel.exitPosition.requiredProbability;
+        const probSatisfied = eng.exitProbability >= reqProb;
+
+        if (objStep1) {
+          objStep1.innerHTML = allCpActive
+            ? `<span style="color: var(--quantum-emerald);">✓ 1. Quantum Checkpoint Secured</span>`
+            : `<span style="color: var(--quantum-amber);">→ 1. Reach Quantum Checkpoint</span>`;
+        }
+        if (objStep2) {
+          objStep2.innerHTML = termsUnlocked
+            ? `<span style="color: var(--quantum-emerald);">✓ 2. Terminal Console Active</span>`
+            : (allCpActive
+                ? `<span style="color: var(--quantum-cyan);">→ 2. Activate Terminal Console</span>`
+                : `<span style="color: #64748b;">○ 2. Activate Terminal Console</span>`);
+        }
+        if (objStep3) {
+          objStep3.innerHTML = probSatisfied
+            ? `<span style="color: var(--quantum-emerald);">✓ 3. Exit Stabilized (${probPct}% >= ${Math.round(reqProb*100)}%)</span>`
+            : `<span style="color: var(--quantum-amber);">→ 3. Stabilize Exit (>= ${Math.round(reqProb*100)}%)</span>`;
+        }
+        if (objStep4) {
+          objStep4.innerHTML = eng.exitUnlocked
+            ? `<span style="color: var(--quantum-emerald);">→ 4. Escape through Exit Portal!</span>`
+            : `<span style="color: #64748b;">○ 4. Escape through Exit Portal</span>`;
+        }
+
+        if (terminalStatusBadge) {
+          if (termsUnlocked) {
+            terminalStatusBadge.className = 'quantum-badge badge-emerald';
+            terminalStatusBadge.textContent = 'ACTIVE';
+          } else {
+            terminalStatusBadge.className = 'quantum-badge badge-amber';
+            terminalStatusBadge.textContent = 'LOCKED';
+          }
+        }
+
+        if (terminalPromptText) {
+          terminalPromptText.textContent = termsUnlocked
+            ? 'Terminal Console active. Click below or press [E] to manipulate quantum gates.'
+            : 'Reach a Quantum Checkpoint [⚑] to unlock operational terminal controls.';
+        }
+
+        // Dirac formula & probabilities
+        if (eng.stateInfo) {
+          if (diracFormulaDisplay) diracFormulaDisplay.textContent = eng.stateInfo.dirac_notation || '|0⟩';
+
+          if (qubitProbabilitiesList) {
+            qubitProbabilitiesList.innerHTML = eng.stateInfo.qubit_probabilities
+              .map((qp) => {
+                const p1Pct = Math.round(qp.p1 * 100);
+                const isCol = qp.collapsed_state !== null;
+                return `
+                  <div class="prob-row">
+                    <span class="prob-label">q${qp.qubit}:</span>
+                    <div class="prob-bar-track">
+                      <div class="prob-bar-fill" style="width: ${p1Pct}%;"></div>
+                    </div>
+                    <span class="prob-value">${isCol ? `|${qp.collapsed_state}⟩` : `${p1Pct}%`}</span>
+                  </div>
+                `;
+              })
+              .join('');
+          }
+
+          if (basisStatesList) {
+            basisStatesList.innerHTML = eng.stateInfo.basis_states
+              .map((bs) => {
+                const pct = Math.round(bs.probability * 100);
+                return `
+                  <div style="display: flex; justify-content: space-between; font-size: 11px;">
+                    <span style="color: #38bdf8;">|${bs.binary}⟩</span>
+                    <span style="color: #94a3b8;">${bs.phase_degrees.toFixed(0)}°</span>
+                    <span style="color: #f1f5f9; font-weight: 600;">${pct}%</span>
+                  </div>
+                `;
+              })
+              .join('');
+          }
+        }
+
+        // Circuit diagram & ASCII
+        if (asciiCircuitDisplay) asciiCircuitDisplay.textContent = eng.asciiDiagram || 'q0: ──[|0⟩]──';
+        if (circuitQubitBadge) circuitQubitBadge.textContent = `${eng.currentLevel.numQubits} Qubit${eng.currentLevel.numQubits > 1 ? 's' : ''}`;
+
+        // Dynamic visual circuit wires
+        if (circuitWiresContainer) {
+          let wiresHtml = '';
+          for (let q = 0; q < eng.currentLevel.numQubits; q++) {
+            const gatesOnQubit = eng.circuitGates.filter((g) => g.target === q || g.control === q);
+            const gateBadges = gatesOnQubit
+              .map((g) => {
+                if (g.control === q) return `<span class="quantum-badge badge-cyan" style="padding: 2px 6px;">● ctrl</span>`;
+                return `<span class="quantum-badge badge-emerald" style="padding: 2px 6px;">[${g.gate}]</span>`;
+              })
+              .join(' ─ ');
+
+            wiresHtml += `
+              <div style="display: flex; align-items: center; gap: 8px; font-family: var(--font-mono); font-size: 12px;">
+                <span style="color: var(--quantum-cyan); font-weight: 700; width: 24px;">q${q}:</span>
+                <div style="flex: 1; height: 1px; background: rgba(0,240,255,0.3); display: flex; align-items: center; gap: 4px;">
+                  ${gateBadges || '<span style="color: #64748b; font-size: 10px;">|0⟩</span>'}
+                </div>
+              </div>
+            `;
+          }
+          circuitWiresContainer.innerHTML = wiresHtml;
+        }
+
+        // Debug Panel
+        if (debugSessionId) debugSessionId.textContent = eng.activeSessionId;
+        if (debugPlayerPos) debugPlayerPos.textContent = `(r: ${eng.player.r}, c: ${eng.player.c})`;
+        if (debugEnergy) debugEnergy.textContent = eng.energy.toString();
+        if (debugMeasurements) debugMeasurements.textContent = `${eng.measurementsUsed} / ${eng.currentLevel.measurementBudget}`;
+        if (debugExitUnlocked) debugExitUnlocked.textContent = eng.exitUnlocked ? 'TRUE' : 'FALSE';
+        if (debugExitReason) debugExitReason.textContent = eng.exitValidationReason;
+      }
+
+      function openInteractionModal() {
+        if (!interactionModal) return;
+        const numQubits = engine.currentLevel.numQubits;
+
+        if (selectTargetQubit) {
+          selectTargetQubit.innerHTML = '';
+          for (let q = 0; q < numQubits; q++) {
+            const opt = document.createElement('option');
+            opt.value = q.toString();
+            opt.textContent = `q${q} (Qubit ${q})`;
+            selectTargetQubit.appendChild(opt);
+          }
+        }
+
+        if (selectControlQubit) {
+          selectControlQubit.innerHTML = '';
+          for (let q = 0; q < numQubits; q++) {
+            const opt = document.createElement('option');
+            opt.value = q.toString();
+            opt.textContent = `q${q} (Control)`;
+            selectControlQubit.appendChild(opt);
+          }
+        }
+
+        const allowed = engine.currentLevel.allowedGates;
+        if (modalGateGrid) {
+          modalGateGrid.innerHTML = allowed
+            .map((gate) => {
+              const cost = (gate.toUpperCase() === 'CNOT' || gate.toUpperCase() === 'CX') ? 20 : (gate.toUpperCase() === 'H' ? 10 : (gate.toUpperCase() === 'M' ? 15 : 5));
+              return `
+                <button class="gate-btn modal-gate-select ${gate === selectedModalGate ? 'active-glow' : ''}" data-gate="${gate}">
+                  <span class="gate-glyph">${gate}</span>
+                  <span class="gate-cost">${cost} QE</span>
+                </button>
+              `;
+            })
+            .join('');
+
+          modalGateGrid.querySelectorAll('.modal-gate-select').forEach((btn) => {
+            btn.addEventListener('click', (e) => {
+              const targetBtn = (e.currentTarget as HTMLElement);
+              const g = targetBtn.dataset.gate || 'H';
+              selectedModalGate = g;
+              modalGateGrid.querySelectorAll('.modal-gate-select').forEach((b) => b.classList.remove('active-glow'));
+              targetBtn.classList.add('active-glow');
+              updateModalGateDetails(g);
+            });
+          });
+        }
+
+        updateModalGateDetails(selectedModalGate);
+        interactionModal.style.display = 'flex';
+      }
+
+      function updateModalGateDetails(gate: string) {
+        const g = gate.toUpperCase();
+        if (controlQubitGroup) {
+          controlQubitGroup.style.display = (g === 'CNOT' || g === 'CX') ? 'block' : 'none';
+        }
+        if (selectedGateName) selectedGateName.textContent = g === 'CNOT' ? 'Controlled-NOT (CNOT)' : (g === 'H' ? 'Hadamard Gate (H)' : (g === 'X' ? 'Pauli-X Gate (X)' : (g === 'Z' ? 'Pauli-Z Gate (Z)' : (g === 'M' ? 'Quantum Measurement (M)' : `${g} Gate`))));
+        if (selectedGateCost) selectedGateCost.textContent = `${(g === 'CNOT' || g === 'CX') ? 20 : (g === 'H' ? 10 : (g === 'M' ? 15 : 5))} QE`;
+        if (selectedGateDesc) {
+          if (g === 'H') selectedGateDesc.textContent = 'Creates equal superposition (|0⟩+|1⟩)/√2 with 50% measurement probabilities.';
+          else if (g === 'X') selectedGateDesc.textContent = 'Pauli-X Bit Flip NOT operation: transforms |0⟩ to |1⟩.';
+          else if (g === 'Z') selectedGateDesc.textContent = 'Pauli-Z Phase Flip: transforms |1⟩ to -|1⟩, essential for constructive interference.';
+          else if (g === 'CNOT' || g === 'CX') selectedGateDesc.textContent = 'Controlled-NOT: Entangles control and target qubits into Bell states.';
+          else if (g === 'M') selectedGateDesc.textContent = 'Performs physical Born-rule measurement, collapsing superposition into a single reality state.';
+          else selectedGateDesc.textContent = 'Applies quantum unitary transformation.';
+        }
+      }
+
+      function closeInteractionModal() {
+        if (interactionModal) interactionModal.style.display = 'none';
+      }
+
+      btnExecuteGate?.addEventListener('click', async () => {
+        const targetQubit = parseInt(selectTargetQubit.value, 10);
+        const controlQubit = parseInt(selectControlQubit.value, 10);
+        closeInteractionModal();
+
+        if (selectedModalGate.toUpperCase() === 'M') {
+          await engine.performMeasurement(targetQubit);
+        } else if (selectedModalGate.toUpperCase() === 'CNOT' || selectedModalGate.toUpperCase() === 'CX') {
+          await engine.applyGate('CNOT', targetQubit, controlQubit);
+        } else {
+          await engine.applyGate(selectedModalGate, targetQubit);
+        }
+      });
+
+      btnCloseInteractModal?.addEventListener('click', closeInteractionModal);
+      btnCancelInteract?.addEventListener('click', closeInteractionModal);
+      btnOpenTerminalDirect?.addEventListener('click', openInteractionModal);
+
+      hudGateInventory?.querySelectorAll('.gate-btn').forEach((btn) => {
+        btn.addEventListener('click', (e) => {
+          const g = (e.currentTarget as HTMLElement).dataset.gate || 'H';
+          selectedModalGate = g;
+          openInteractionModal();
+        });
+      });
+
+      btnPause?.addEventListener('click', () => {
+        engine.pauseGame();
+        if (pauseMenuModal) pauseMenuModal.style.display = 'flex';
+      });
+
+      btnResume?.addEventListener('click', () => {
+        if (pauseMenuModal) pauseMenuModal.style.display = 'none';
+        engine.resumeGame();
+      });
+
+      btnRestartLevel?.addEventListener('click', () => {
+        if (pauseMenuModal) pauseMenuModal.style.display = 'none';
+        engine.restartLevel();
+      });
+
+      btnRetryLevel?.addEventListener('click', () => {
+        if (failureModal) failureModal.style.display = 'none';
+        engine.restartLevel();
+      });
+
+      btnReplayLevel?.addEventListener('click', () => {
+        if (victoryModal) victoryModal.style.display = 'none';
+        engine.restartLevel();
+      });
+
+      btnNextLevel?.addEventListener('click', () => {
+        if (victoryModal) victoryModal.style.display = 'none';
+        const nextNum = engine.currentLevel.levelNumber + 1;
+        const nextLvl = LEVELS.find((l) => l.levelNumber === nextNum);
+        if (nextLvl) {
+          window.location.href = `/game?level=${nextLvl.id}`;
+        } else {
+          window.location.href = '/levels';
+        }
+      });
+
+      btnCloseDebug?.addEventListener('click', () => {
+        if (debugPanel) debugPanel.style.display = 'none';
+      });
+
+      btnDebugAddEnergy?.addEventListener('click', () => {
+        engine.energy += 50;
+        showToast('Debug: +50 Quantum Energy added.', 'info');
+        updateUI(engine);
+      });
+
+      btnDebugUnlockExit?.addEventListener('click', () => {
+        engine.exitUnlocked = true;
+        showToast('Debug: Exit Force Unlocked.', 'success');
+        updateUI(engine);
+      });
+
+      // Keyboard Controls
+      window.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          if (interactionModal && interactionModal.style.display === 'flex') {
+            closeInteractionModal();
+          } else if (pauseMenuModal && pauseMenuModal.style.display === 'flex') {
+            pauseMenuModal.style.display = 'none';
+            engine.resumeGame();
+          } else {
+            engine.pauseGame();
+            if (pauseMenuModal) pauseMenuModal.style.display = 'flex';
+          }
+          return;
+        }
+
+        if (e.key === '`' || e.key === '~') {
+          if (debugPanel) {
+            debugPanel.style.display = debugPanel.style.display === 'none' ? 'block' : 'none';
+          }
+          return;
+        }
+
+        if (engine.status !== 'PLAYING') return;
+
+        if (e.key === 'w' || e.key === 'W' || e.key === 'ArrowUp') {
+          engine.movePlayer('UP');
+        } else if (e.key === 's' || e.key === 'S' || e.key === 'ArrowDown') {
+          engine.movePlayer('DOWN');
+        } else if (e.key === 'a' || e.key === 'A' || e.key === 'ArrowLeft') {
+          engine.movePlayer('LEFT');
+        } else if (e.key === 'd' || e.key === 'D' || e.key === 'ArrowRight') {
+          engine.movePlayer('RIGHT');
+        } else if (e.key === 'e' || e.key === 'E' || e.key === 'q' || e.key === 'Q' || e.key === ' ') {
+          if (engine.terminals.some((t) => t.unlocked) || engine.activeInteractiveTerminal) {
+            openInteractionModal();
+          } else {
+            showToast('Reach a Quantum Checkpoint [⚑] to activate operator terminal.', 'warning');
+          }
+        }
+      });
+
+      // Render Loop
+      let startTime = performance.now();
+      function renderLoop(now: number) {
+        const timeSec = (now - startTime) / 1000;
+        renderer.render(
+          engine.currentLevel.rows,
+          engine.currentLevel.cols,
+          engine.walls,
+          engine.player,
+          engine.checkpoints,
+          engine.terminals,
+          engine.doors,
+          engine.quantumObjects,
+          engine.energyCells,
+          engine.currentLevel.exitPosition,
+          engine.exitUnlocked,
+          engine.exitProbability,
+          engine.stateInfo,
+          timeSec
+        );
+        requestAnimationFrame(renderLoop);
+      }
+      requestAnimationFrame(renderLoop);
+
+      // Start Level
+      await engine.startLevel(levelId);
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,31 @@
+---
+// DebugPanel Component - Developer Diagnostics Overlay
+---
+
+<div id="debugPanel" class="glass-panel" style="display: none; position: fixed; bottom: 20px; right: 20px; width: 360px; max-height: 480px; overflow-y: auto; z-index: 999; padding: 14px; font-family: var(--font-mono); font-size: 11px; border: 1px solid var(--quantum-cyan); box-shadow: 0 0 20px rgba(0,240,255,0.3);">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; border-bottom: 1px solid var(--border-subtle); padding-bottom: 4px;">
+    <span style="font-weight: 700; color: var(--quantum-cyan);">QUANTUM DEBUG CONSOLE</span>
+    <button id="btnCloseDebug" style="background: none; border: none; color: #94a3b8; cursor: pointer;">✕</button>
+  </div>
+
+  <div style="display: flex; flex-direction: column; gap: 6px; color: #cbd5e1;">
+    <div><strong>Session ID:</strong> <span id="debugSessionId">-</span></div>
+    <div><strong>Player Pos:</strong> <span id="debugPlayerPos">(0, 0)</span></div>
+    <div><strong>Energy:</strong> <span id="debugEnergy">100</span> QE</div>
+    <div><strong>Measurements:</strong> <span id="debugMeasurements">0</span></div>
+    <div><strong>Exit Unlocked:</strong> <span id="debugExitUnlocked">false</span></div>
+    <div><strong>Exit Reason:</strong> <span id="debugExitReason">-</span></div>
+    
+    <div style="margin-top: 8px;">
+      <strong>Debug Actions:</strong>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 4px;">
+        <button id="btnDebugAddEnergy" class="btn-quantum-secondary" style="padding: 4px; font-size: 10px;">
+          +50 Energy
+        </button>
+        <button id="btnDebugUnlockExit" class="btn-quantum-secondary" style="padding: 4px; font-size: 10px;">
+          Force Unlock
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

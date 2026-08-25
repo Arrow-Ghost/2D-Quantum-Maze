@@ -1,0 +1,369 @@
+---
+// QuantumGatesSection.astro - Section 05 to 09: Comprehensive Quantum Gates Showcase
+---
+
+<section class="landing-section gates-master-section" id="sectionGates">
+  <div class="section-header-block">
+    <div class="section-tag">
+      <span class="tag-number">04</span>
+      <span class="tag-label">OPERATOR ARSENAL</span>
+    </div>
+    <h2 class="section-main-heading">
+      CONTROL THE <span class="text-cyan-glow">STATE</span>.
+    </h2>
+    <p class="section-sub-heading">
+      Apply unitary quantum transformations at operator terminals to reshape statevectors and unlock exit probability channels.
+    </p>
+  </div>
+
+  <!-- Gates Showcase Vertical Stack -->
+  <div class="gates-stack-container">
+    <!-- 1. HADAMARD GATE (H) -->
+    <div class="glass-panel gate-showcase-panel" id="panelGateH">
+      <div class="gate-panel-badge badge-h">H</div>
+      <div class="gate-content-grid">
+        <div class="gate-info-col">
+          <span class="gate-system-id">OPERATOR // 01</span>
+          <h3 class="gate-name">Hadamard Gate (H)</h3>
+          <p class="gate-summary">
+            Creates an equal superposition from a computational basis state: |0⟩ → (|0⟩ + |1⟩)/√2.
+          </p>
+          <div class="gate-circuit-badge">
+            <span class="wire-label">q0:</span> ───[ H ]───
+          </div>
+          <div class="gate-game-impact">
+            <span class="impact-label">GAMEPLAY IMPACT:</span>
+            <span class="impact-desc">Injects probabilistic uncertainty into barriers and prepares state for phase manipulation.</span>
+          </div>
+        </div>
+
+        <div class="gate-transform-col">
+          <div class="state-comparison-box">
+            <div class="state-block before-block">
+              <span class="state-tag">STATE BEFORE</span>
+              <span class="state-val">|0⟩ (100%)</span>
+              <div class="mini-bar"><div class="mini-fill" style="width: 100%;"></div></div>
+            </div>
+            <div class="state-arrow-divider">▶</div>
+            <div class="state-block after-block">
+              <span class="state-tag">STATE AFTER</span>
+              <span class="state-val">50% |0⟩ + 50% |1⟩</span>
+              <div class="mini-bar"><div class="mini-fill" style="width: 50%;"></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. PAULI-X GATE (X) -->
+    <div class="glass-panel gate-showcase-panel" id="panelGateX">
+      <div class="gate-panel-badge badge-x">X</div>
+      <div class="gate-content-grid">
+        <div class="gate-info-col">
+          <span class="gate-system-id">OPERATOR // 02</span>
+          <h3 class="gate-name">Pauli-X Gate (NOT)</h3>
+          <p class="gate-summary">
+            Quantum bit-flip operation. Maps basis states into their opposite: |0⟩ ↔ |1⟩.
+          </p>
+          <div class="gate-circuit-badge">
+            <span class="wire-label">q0:</span> ───[ X ]───
+          </div>
+          <div class="gate-game-impact">
+            <span class="impact-label">GAMEPLAY IMPACT:</span>
+            <span class="impact-desc">Inverts containment lock states from locked (|0⟩) to fully unlocked (|1⟩).</span>
+          </div>
+        </div>
+
+        <div class="gate-transform-col">
+          <div class="state-comparison-box">
+            <div class="state-block before-block">
+              <span class="state-tag">STATE BEFORE</span>
+              <span class="state-val">P(1) = 0.0%</span>
+              <div class="mini-bar"><div class="mini-fill" style="width: 0%;"></div></div>
+            </div>
+            <div class="state-arrow-divider">▶</div>
+            <div class="state-block after-block">
+              <span class="state-tag">STATE AFTER</span>
+              <span class="state-val">P(1) = 100.0%</span>
+              <div class="mini-bar"><div class="mini-fill fill-emerald" style="width: 100%;"></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. PAULI-Z GATE & INTERFERENCE (Z) -->
+    <div class="glass-panel gate-showcase-panel" id="panelGateZ">
+      <div class="gate-panel-badge badge-z">Z</div>
+      <div class="gate-content-grid">
+        <div class="gate-info-col">
+          <span class="gate-system-id">OPERATOR // 03</span>
+          <h3 class="gate-name">Pauli-Z Gate & Phase</h3>
+          <p class="gate-summary">
+            Relative phase-flip. Leaves single-qubit probabilities unchanged while rotating relative phase by π radians (Z|1⟩ = -|1⟩).
+          </p>
+          <div class="gate-circuit-badge">
+            <span class="wire-label">q0:</span> ───[ Z ]───
+          </div>
+          <div class="gate-game-impact">
+            <span class="impact-label">GAMEPLAY IMPACT:</span>
+            <span class="impact-desc">Modulates constructive vs destructive quantum interference to align probability at the exit.</span>
+          </div>
+        </div>
+
+        <div class="gate-transform-col">
+          <div class="state-comparison-box">
+            <div class="state-block before-block">
+              <span class="state-tag">PHASE BEFORE</span>
+              <span class="state-val">θ = 0.00 rad (0°)</span>
+              <span class="phase-meta">Constructive</span>
+            </div>
+            <div class="state-arrow-divider">▶</div>
+            <div class="state-block after-block">
+              <span class="state-tag">PHASE AFTER</span>
+              <span class="state-val" style="color: #c77dff;">θ = 3.14 rad (180°)</span>
+              <span class="phase-meta">Phase Inverted</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4. CNOT & ENTANGLEMENT (CX) -->
+    <div class="glass-panel gate-showcase-panel" id="panelGateCNOT">
+      <div class="gate-panel-badge badge-cnot">CX</div>
+      <div class="gate-content-grid">
+        <div class="gate-info-col">
+          <span class="gate-system-id">OPERATOR // 04</span>
+          <h3 class="gate-name">Controlled-NOT & Entanglement</h3>
+          <p class="gate-summary">
+            2-Qubit controlled operation. Entangles control and target into Bell state: (|00⟩ + |11⟩)/√2.
+          </p>
+          <div class="gate-circuit-badge" style="display: flex; flex-direction: column; gap: 2px;">
+            <div><span class="wire-label">q0:</span> ───●───</div>
+            <div style="padding-left: 28px;">│</div>
+            <div><span class="wire-label">q1:</span> ───X───</div>
+          </div>
+          <div class="gate-game-impact">
+            <span class="impact-label">GAMEPLAY IMPACT:</span>
+            <span class="impact-desc">Creates instantaneous correlation across paired bulkheads. Measuring one immediately dictates the other.</span>
+          </div>
+        </div>
+
+        <div class="gate-transform-col">
+          <div class="state-comparison-box">
+            <div class="state-block before-block">
+              <span class="state-tag">CORRELATION</span>
+              <span class="state-val">Separable</span>
+              <span class="phase-meta">Independent Qubits</span>
+            </div>
+            <div class="state-arrow-divider">▶</div>
+            <div class="state-block after-block">
+              <span class="state-tag">BELL STATE</span>
+              <span class="state-val" style="color: var(--quantum-emerald);">(|00⟩+|11⟩)/√2</span>
+              <span class="phase-meta">100% Entangled</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .gates-master-section {
+    position: relative;
+    padding: 120px 24px;
+    max-width: 1080px;
+    margin: 0 auto;
+    z-index: 10;
+  }
+
+  .gates-stack-container {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+  }
+
+  .gate-showcase-panel {
+    position: relative;
+    padding: 36px 32px;
+    border: 1px solid var(--border-subtle);
+    overflow: hidden;
+    transition: all 0.3s ease;
+  }
+
+  .gate-showcase-panel:hover {
+    border-color: rgba(0, 240, 255, 0.4);
+    box-shadow: 0 0 35px rgba(0, 240, 255, 0.1);
+  }
+
+  .gate-panel-badge {
+    position: absolute;
+    top: 20px;
+    right: 24px;
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    font-family: var(--font-mono);
+    font-size: 20px;
+    font-weight: 800;
+    opacity: 0.8;
+  }
+
+  .badge-h {
+    background: rgba(0, 240, 255, 0.15);
+    border: 1px solid var(--quantum-cyan);
+    color: var(--quantum-cyan);
+  }
+
+  .badge-x {
+    background: rgba(0, 245, 155, 0.15);
+    border: 1px solid var(--quantum-emerald);
+    color: var(--quantum-emerald);
+  }
+
+  .badge-z {
+    background: rgba(199, 125, 255, 0.15);
+    border: 1px solid #c77dff;
+    color: #c77dff;
+  }
+
+  .badge-cnot {
+    background: rgba(255, 183, 3, 0.15);
+    border: 1px solid var(--quantum-amber);
+    color: var(--quantum-amber);
+  }
+
+  .gate-content-grid {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr;
+    gap: 32px;
+    align-items: center;
+  }
+
+  .gate-system-id {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    color: #64748b;
+    margin-bottom: 6px;
+    display: block;
+  }
+
+  .gate-name {
+    font-family: var(--font-display);
+    font-size: 24px;
+    font-weight: 700;
+    color: #f1f5f9;
+    margin-bottom: 10px;
+  }
+
+  .gate-summary {
+    font-size: 14px;
+    line-height: 1.55;
+    color: #94a3b8;
+    margin-bottom: 18px;
+  }
+
+  .gate-circuit-badge {
+    display: inline-block;
+    padding: 8px 16px;
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px dashed rgba(255, 255, 255, 0.15);
+    border-radius: 6px;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    color: #f1f5f9;
+    margin-bottom: 20px;
+  }
+
+  .wire-label {
+    color: var(--quantum-cyan);
+    font-weight: 700;
+  }
+
+  .gate-game-impact {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    line-height: 1.5;
+  }
+
+  .impact-label {
+    color: var(--quantum-amber);
+    font-weight: 700;
+    margin-right: 6px;
+  }
+
+  .impact-desc {
+    color: #cbd5e1;
+  }
+
+  .state-comparison-box {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 20px;
+    background: rgba(10, 16, 26, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 8px;
+  }
+
+  .state-block {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .state-tag {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: #64748b;
+    letter-spacing: 0.1em;
+  }
+
+  .state-val {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    font-weight: 700;
+    color: #f1f5f9;
+  }
+
+  .phase-meta {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: #94a3b8;
+  }
+
+  .state-arrow-divider {
+    color: var(--quantum-cyan);
+    font-size: 14px;
+  }
+
+  .mini-bar {
+    height: 4px;
+    background: rgba(0, 0, 0, 0.5);
+    border-radius: 9999px;
+    overflow: hidden;
+  }
+
+  .mini-fill {
+    height: 100%;
+    background: var(--quantum-cyan);
+  }
+
+  .mini-fill.fill-emerald {
+    background: var(--quantum-emerald);
+  }
+
+  @media (max-width: 860px) {
+    .gate-content-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

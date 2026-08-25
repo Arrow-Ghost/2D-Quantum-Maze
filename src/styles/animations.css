@@ -1,0 +1,52 @@
+/* Quantum Keyframe Animations */
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -10px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
+@keyframes quantumPulse {
+  0%, 100% {
+    box-shadow: 0 0 10px rgba(0, 240, 255, 0.2);
+    border-color: rgba(0, 240, 255, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 25px rgba(0, 240, 255, 0.6);
+    border-color: rgba(0, 240, 255, 0.8);
+  }
+}
+
+@keyframes waveOscillation {
+  0% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-4px) rotate(1deg); }
+  100% { transform: translateY(0px) rotate(0deg); }
+}
+
+@keyframes vortexSpin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes collapseFlash {
+  0% { background: rgba(0, 240, 255, 0.6); }
+  100% { background: transparent; }
+}
+
+.animate-pulse-glow {
+  animation: quantumPulse 2.5s infinite ease-in-out;
+}
+
+.animate-vortex {
+  animation: vortexSpin 8s infinite linear;
+}

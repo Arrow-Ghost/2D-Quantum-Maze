@@ -1,0 +1,119 @@
+---
+// ScientificCursor.astro - Minimal Laboratory Custom Reticle Cursor
+---
+
+<div id="sciCursor" class="scientific-cursor" aria-hidden="true">
+  <div class="cursor-dot"></div>
+  <div class="cursor-ring"></div>
+  <div class="cursor-coords" id="cursorCoordDisplay">000.000</div>
+</div>
+
+<style>
+  .scientific-cursor {
+    position: fixed;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+    z-index: 9999;
+    transform: translate(-50%, -50%);
+    display: none;
+    transition: opacity 0.2s ease;
+  }
+
+  .cursor-dot {
+    width: 5px;
+    height: 5px;
+    background: var(--quantum-cyan);
+    border-radius: 50%;
+    box-shadow: 0 0 8px var(--quantum-cyan);
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+  .cursor-ring {
+    width: 28px;
+    height: 28px;
+    border: 1px dashed rgba(0, 240, 255, 0.4);
+    border-radius: 50%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    transition: width 0.2s ease, height 0.2s ease, border-color 0.2s ease;
+  }
+
+  .cursor-coords {
+    position: absolute;
+    top: 18px;
+    left: 18px;
+    font-family: var(--font-mono);
+    font-size: 8px;
+    letter-spacing: 0.1em;
+    color: rgba(0, 240, 255, 0.6);
+    white-space: nowrap;
+  }
+
+  .scientific-cursor.hovering .cursor-ring {
+    width: 44px;
+    height: 44px;
+    border-color: var(--quantum-emerald);
+    border-style: solid;
+    box-shadow: 0 0 12px rgba(0, 245, 155, 0.3);
+  }
+
+  .scientific-cursor.hovering .cursor-dot {
+    background: var(--quantum-emerald);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .scientific-cursor {
+      display: block;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .scientific-cursor {
+      display: none !important;
+    }
+  }
+</style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const cursor = document.getElementById('sciCursor');
+    const coordDisplay = document.getElementById('cursorCoordDisplay');
+    if (!cursor) return;
+
+    let mouseX = window.innerWidth / 2;
+    let mouseY = window.innerHeight / 2;
+    let currentX = mouseX;
+    let currentY = mouseY;
+
+    window.addEventListener('mousemove', (e) => {
+      mouseX = e.clientX;
+      mouseY = e.clientY;
+
+      if (coordDisplay) {
+        coordDisplay.textContent = `${mouseX.toString().padStart(4, '0')}.${mouseY.toString().padStart(4, '0')}`;
+      }
+    }, { passive: true });
+
+    // Smooth cursor trailing
+    function updateCursor() {
+      currentX += (mouseX - currentX) * 0.2;
+      currentY += (mouseY - currentY) * 0.2;
+      cursor.style.transform = `translate3d(${currentX}px, ${currentY}px, 0) translate(-50%, -50%)`;
+      requestAnimationFrame(updateCursor);
+    }
+    requestAnimationFrame(updateCursor);
+
+    // Hover detection on interactive elements
+    const interactables = document.querySelectorAll('a, button, input, .portal-card, .sequence-card');
+    interactables.forEach((el) => {
+      el.addEventListener('mouseenter', () => cursor.classList.add('hovering'));
+      el.addEventListener('mouseleave', () => cursor.classList.remove('hovering'));
+    });
+  });
+</script>

@@ -1,0 +1,71 @@
+---
+// VictoryModal Component
+---
+
+<div id="victoryModal" class="modal-overlay" style="display: none;">
+  <div class="modal-card" style="max-width: 540px;">
+    <div style="text-align: center; border-bottom: 1px solid var(--border-subtle); padding-bottom: 14px;">
+      <span class="quantum-badge badge-emerald" style="margin-bottom: 8px;">QUANTUM COLLAPSE COMPLETE</span>
+      <h2 style="font-size: 26px; color: #ffffff; letter-spacing: 0.04em;">REALITY SELECTED</h2>
+      <p style="font-family: var(--font-mono); font-size: 13px; color: var(--quantum-emerald); text-shadow: 0 0 10px rgba(0,245,155,0.5);">
+        ESCAPE SUCCESSFUL
+      </p>
+    </div>
+
+    <!-- Star Ratings -->
+    <div id="victoryStarsContainer" style="display: flex; justify-content: center; gap: 12px; font-size: 28px; color: var(--quantum-amber);">
+      <span class="star-icon">⭐</span>
+      <span class="star-icon">⭐</span>
+      <span class="star-icon">⭐</span>
+    </div>
+
+    <!-- Total Score Pill -->
+    <div style="text-align: center; background: rgba(0, 240, 255, 0.08); border: 1px solid rgba(0, 240, 255, 0.3); border-radius: 8px; padding: 12px;">
+      <span class="hud-label" style="display: block;">TOTAL ESCAPE SCORE</span>
+      <span id="victoryTotalScore" style="font-family: var(--font-mono); font-size: 32px; font-weight: 800; color: #ffffff;">
+        1850
+      </span>
+    </div>
+
+    <!-- Performance Breakdown Grid -->
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-family: var(--font-mono); font-size: 12px; background: rgba(0,0,0,0.3); padding: 12px; border-radius: 8px;">
+      <div>
+        <span style="color: #64748b;">Elapsed Time:</span>
+        <span id="victoryTime" style="color: #f1f5f9; font-weight: 600; float: right;">00:34.2</span>
+      </div>
+      <div>
+        <span style="color: #64748b;">Time Bonus:</span>
+        <span id="victoryTimeBonus" style="color: var(--quantum-emerald); font-weight: 600; float: right;">+420</span>
+      </div>
+      <div>
+        <span style="color: #64748b;">Gates Used:</span>
+        <span id="victoryGatesUsed" style="color: #f1f5f9; font-weight: 600; float: right;">2</span>
+      </div>
+      <div>
+        <span style="color: #64748b;">Quantum Efficiency:</span>
+        <span id="victoryEfficiency" style="color: var(--quantum-cyan); font-weight: 600; float: right;">+480</span>
+      </div>
+      <div>
+        <span style="color: #64748b;">Exit Probability:</span>
+        <span id="victoryProbability" style="color: #f1f5f9; font-weight: 600; float: right;">100%</span>
+      </div>
+      <div>
+        <span style="color: #64748b;">Energy Remaining:</span>
+        <span id="victoryEnergy" style="color: #f1f5f9; font-weight: 600; float: right;">85 QE</span>
+      </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div style="display: flex; gap: 10px; margin-top: 8px;">
+      <button id="btnReplayLevel" class="btn-quantum-secondary" style="flex: 1;">
+        Replay Sector
+      </button>
+      <a href="/levels" class="btn-quantum-secondary" style="flex: 1; text-align: center;">
+        Sector Select
+      </a>
+      <button id="btnNextLevel" class="btn-quantum" style="flex: 1.5;">
+        Next Sector ➔
+      </button>
+    </div>
+  </div>
+</div>

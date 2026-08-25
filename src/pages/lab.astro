@@ -1,0 +1,366 @@
+---
+import Navbar from '../components/Navbar.astro';
+import '../styles/global.css';
+import '../styles/game.css';
+import '../styles/hud.css';
+import '../styles/animations.css';
+---
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QUANTUM LAB | Circuit Sandbox</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+</head>
+<body>
+  <Navbar activePage="lab" />
+
+  <main class="lab-container">
+    <div class="lab-header">
+      <span class="quantum-badge badge-cyan" style="margin-bottom: 8px;">EDUCATIONAL RESEARCH SANDBOX</span>
+      <h1 style="font-size: 32px; color: #ffffff;">QUANTUM COMPUTING LAB</h1>
+      <p style="color: #94a3b8; font-size: 14px; max-width: 700px; margin: 0 auto;">
+        Interactive multi-qubit quantum circuit sandbox. Place gates ($H, X, Y, Z, S, T, CNOT$) onto qubit rails, simulate real statevectors via Qiskit, and analyze phase interference and wavefunction collapses.
+      </p>
+    </div>
+
+    <div class="lab-grid">
+      <!-- Circuit Editor Panel -->
+      <div class="glass-panel lab-panel">
+        <div class="panel-header">
+          <span class="panel-title">Interactive Circuit Builder</span>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <label class="hud-label">Qubits:</label>
+            <select id="selectNumQubits" class="btn-quantum-secondary" style="padding: 4px 8px; font-size: 11px;">
+              <option value="1">1 Qubit</option>
+              <option value="2" selected>2 Qubits</option>
+              <option value="3">3 Qubits</option>
+              <option value="4">4 Qubits</option>
+            </select>
+            <button id="btnClearCircuit" class="btn-quantum-secondary" style="padding: 4px 8px; font-size: 11px;">
+              Clear ↺
+            </button>
+          </div>
+        </div>
+
+        <!-- Gate Toolbox -->
+        <div class="toolbox-bar">
+          <span class="hud-label" style="margin-right: 6px;">Add Gate:</span>
+          <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+            <button class="gate-btn tool-gate-btn" data-gate="H" title="Hadamard (Superposition)">
+              <span class="gate-glyph">H</span>
+            </button>
+            <button class="gate-btn tool-gate-btn" data-gate="X" title="Pauli-X (NOT)">
+              <span class="gate-glyph">X</span>
+            </button>
+            <button class="gate-btn tool-gate-btn" data-gate="Y" title="Pauli-Y">
+              <span class="gate-glyph">Y</span>
+            </button>
+            <button class="gate-btn tool-gate-btn" data-gate="Z" title="Pauli-Z (Phase Flip)">
+              <span class="gate-glyph">Z</span>
+            </button>
+            <button class="gate-btn tool-gate-btn" data-gate="S" title="S Gate (pi/2 Phase)">
+              <span class="gate-glyph">S</span>
+            </button>
+            <button class="gate-btn tool-gate-btn" data-gate="T" title="T Gate (pi/4 Phase)">
+              <span class="gate-glyph">T</span>
+            </button>
+            <button class="gate-btn tool-gate-btn" data-gate="CNOT" title="Controlled-NOT (Entanglement)">
+              <span class="gate-glyph">CX</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Interactive Gate Placement Form -->
+        <div id="gatePlacementForm" style="display: flex; align-items: center; gap: 10px; margin: 12px 0; padding: 10px; background: rgba(0,0,0,0.3); border-radius: 8px; font-family: var(--font-mono); font-size: 12px;">
+          <span>Target:</span>
+          <select id="toolTargetQubit" class="btn-quantum-secondary" style="padding: 4px 8px; font-size: 11px;">
+            <option value="0">q0</option>
+            <option value="1">q1</option>
+          </select>
+          <span id="toolControlLabel" style="display: none;">Control:</span>
+          <select id="toolControlQubit" class="btn-quantum-secondary" style="display: none; padding: 4px 8px; font-size: 11px;">
+            <option value="0">q0</option>
+            <option value="1">q1</option>
+          </select>
+          <button id="btnAddGateToCircuit" class="btn-quantum" style="padding: 6px 14px; font-size: 11px; margin-left: auto;">
+            + Append Gate
+          </button>
+        </div>
+
+        <!-- Circuit Wire Rails Visualization -->
+        <div class="circuit-wire-visualizer" id="labCircuitWires">
+          <!-- Dynamic Circuit Wire Lines -->
+        </div>
+
+        <div style="margin-top: 14px;">
+          <span class="hud-label" style="display: block; margin-bottom: 4px;">Qiskit ASCII Circuit:</span>
+          <pre class="ascii-circuit" id="labAsciiDisplay">q0: ──[|0⟩]──</pre>
+        </div>
+      </div>
+
+      <!-- Statevector & Probability Breakdown Panel -->
+      <div class="glass-panel lab-panel">
+        <div class="panel-header">
+          <span class="panel-title">Qiskit Statevector Analysis</span>
+          <span class="quantum-badge badge-emerald" id="labPurityBadge">Pure State</span>
+        </div>
+
+        <div>
+          <span class="hud-label" style="display: block; margin-bottom: 4px;">Dirac Representation |ψ⟩:</span>
+          <div class="dirac-formula" id="labDiracDisplay">|00⟩</div>
+        </div>
+
+        <div style="margin-top: 14px;">
+          <span class="hud-label" style="display: block; margin-bottom: 8px;">Basis State Probabilities & Phases:</span>
+          <div id="labBasisStateBars" style="display: flex; flex-direction: column; gap: 8px;">
+            <!-- Live Probability bars dynamically generated -->
+          </div>
+        </div>
+
+        <!-- Quick Presets -->
+        <div style="margin-top: 20px; border-top: 1px solid var(--border-subtle); padding-top: 14px;">
+          <span class="hud-label" style="display: block; margin-bottom: 8px;">Quantum Presets:</span>
+          <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+            <button class="btn-quantum-secondary preset-btn" data-preset="bell" style="padding: 6px 10px; font-size: 11px;">
+              Bell State (|00⟩+|11⟩)/√2
+            </button>
+            <button class="btn-quantum-secondary preset-btn" data-preset="ghz" style="padding: 6px 10px; font-size: 11px;">
+              GHZ State (|000⟩+|111⟩)/√2
+            </button>
+            <button class="btn-quantum-secondary preset-btn" data-preset="interference" style="padding: 6px 10px; font-size: 11px;">
+              H-Z-H Destructive
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    import { quantumClient } from '../lib/api/quantumClient';
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      let numQubits = 2;
+      let gates: { id: string; gate: string; target: number; control?: number }[] = [];
+      let selectedToolGate = 'H';
+
+      const selectNumQubits = document.getElementById('selectNumQubits') as HTMLSelectElement;
+      const btnClearCircuit = document.getElementById('btnClearCircuit');
+      const toolTargetQubit = document.getElementById('toolTargetQubit') as HTMLSelectElement;
+      const toolControlQubit = document.getElementById('toolControlQubit') as HTMLSelectElement;
+      const toolControlLabel = document.getElementById('toolControlLabel');
+      const btnAddGateToCircuit = document.getElementById('btnAddGateToCircuit');
+      const labCircuitWires = document.getElementById('labCircuitWires');
+      const labAsciiDisplay = document.getElementById('labAsciiDisplay');
+      const labDiracDisplay = document.getElementById('labDiracDisplay');
+      const labBasisStateBars = document.getElementById('labBasisStateBars');
+
+      function updateQubitSelectOptions() {
+        if (!toolTargetQubit || !toolControlQubit) return;
+        toolTargetQubit.innerHTML = '';
+        toolControlQubit.innerHTML = '';
+        for (let i = 0; i < numQubits; i++) {
+          const opt1 = document.createElement('option');
+          opt1.value = i.toString();
+          opt1.textContent = `q${i}`;
+          toolTargetQubit.appendChild(opt1);
+
+          const opt2 = document.createElement('option');
+          opt2.value = i.toString();
+          opt2.textContent = `q${i}`;
+          toolControlQubit.appendChild(opt2);
+        }
+      }
+
+      async function runSimulation() {
+        try {
+          const res = await quantumClient.executeArbitraryCircuit(numQubits, gates);
+          if (labAsciiDisplay) labAsciiDisplay.textContent = res.ascii_diagram || 'q0: ──[|0⟩]──';
+          if (labDiracDisplay) labDiracDisplay.textContent = res.state_info.dirac_notation || '|0⟩';
+
+          // Update Basis State Bars
+          if (labBasisStateBars) {
+            labBasisStateBars.innerHTML = res.state_info.basis_states
+              .map((bs) => {
+                const pct = Math.round(bs.probability * 100);
+                return `
+                  <div class="prob-row">
+                    <span class="prob-label" style="width: 50px; color: #38bdf8;">|${bs.binary}⟩</span>
+                    <div class="prob-bar-track" style="height: 14px;">
+                      <div class="prob-bar-fill" style="width: ${pct}%;"></div>
+                    </div>
+                    <span class="prob-value" style="width: 50px;">${pct}%</span>
+                    <span style="font-size: 10px; color: #94a3b8; width: 45px; text-align: right;">${bs.phase_degrees.toFixed(0)}°</span>
+                  </div>
+                `;
+              })
+              .join('');
+          }
+
+          renderVisualWires();
+        } catch (err: any) {
+          console.error('Simulation error:', err);
+        }
+      }
+
+      function renderVisualWires() {
+        if (!labCircuitWires) return;
+        let html = '';
+        for (let q = 0; q < numQubits; q++) {
+          const qGates = gates.filter((g) => g.target === q || g.control === q);
+          const gateGlyphs = qGates
+            .map((g) => {
+              if (g.control === q) {
+                return `<span class="quantum-badge badge-cyan" style="cursor: pointer;" title="Control for q${g.target}">● ctrl</span>`;
+              }
+              return `<span class="quantum-badge badge-emerald" style="cursor: pointer;" title="${g.gate} on q${g.target}">[${g.gate}]</span>`;
+            })
+            .join(' ── ');
+
+          html += `
+            <div style="display: flex; align-items: center; gap: 8px; font-family: var(--font-mono); font-size: 13px;">
+              <span style="color: var(--quantum-cyan); font-weight: 700; width: 30px;">q${q}:</span>
+              <div style="flex: 1; height: 2px; background: rgba(0,240,255,0.3); display: flex; align-items: center; gap: 6px; padding: 0 8px;">
+                ${gateGlyphs || '<span style="color: #64748b; font-size: 11px;">|0⟩</span>'}
+              </div>
+            </div>
+          `;
+        }
+        labCircuitWires.innerHTML = html;
+      }
+
+      // Toolbox Gate Selection
+      document.querySelectorAll('.tool-gate-btn').forEach((btn) => {
+        btn.addEventListener('click', (e) => {
+          const g = (e.currentTarget as HTMLElement).dataset.gate || 'H';
+          selectedToolGate = g;
+          document.querySelectorAll('.tool-gate-btn').forEach((b) => b.classList.remove('active-glow'));
+          (e.currentTarget as HTMLElement).classList.add('active-glow');
+
+          if (toolControlLabel && toolControlQubit) {
+            const isCnot = g === 'CNOT';
+            toolControlLabel.style.display = isCnot ? 'inline' : 'none';
+            toolControlQubit.style.display = isCnot ? 'inline' : 'none';
+          }
+        });
+      });
+
+      // Append Gate
+      btnAddGateToCircuit?.addEventListener('click', () => {
+        const target = parseInt(toolTargetQubit.value, 10);
+        const control = selectedToolGate === 'CNOT' ? parseInt(toolControlQubit.value, 10) : undefined;
+        if (selectedToolGate === 'CNOT' && target === control) {
+          alert('Control and target qubits cannot be the same qubit.');
+          return;
+        }
+
+        gates.push({
+          id: Math.random().toString(36).substring(2, 8),
+          gate: selectedToolGate,
+          target,
+          control,
+        });
+
+        runSimulation();
+      });
+
+      // Change Qubit Count
+      selectNumQubits?.addEventListener('change', () => {
+        numQubits = parseInt(selectNumQubits.value, 10);
+        gates = [];
+        updateQubitSelectOptions();
+        runSimulation();
+      });
+
+      // Clear Circuit
+      btnClearCircuit?.addEventListener('click', () => {
+        gates = [];
+        runSimulation();
+      });
+
+      // Presets
+      document.querySelectorAll('.preset-btn').forEach((btn) => {
+        btn.addEventListener('click', (e) => {
+          const preset = (e.currentTarget as HTMLElement).dataset.preset;
+          if (preset === 'bell') {
+            numQubits = 2;
+            selectNumQubits.value = '2';
+            gates = [
+              { id: '1', gate: 'H', target: 0 },
+              { id: '2', gate: 'CNOT', target: 1, control: 0 },
+            ];
+          } else if (preset === 'ghz') {
+            numQubits = 3;
+            selectNumQubits.value = '3';
+            gates = [
+              { id: '1', gate: 'H', target: 0 },
+              { id: '2', gate: 'CNOT', target: 1, control: 0 },
+              { id: '3', gate: 'CNOT', target: 2, control: 1 },
+            ];
+          } else if (preset === 'interference') {
+            numQubits = 1;
+            selectNumQubits.value = '1';
+            gates = [
+              { id: '1', gate: 'H', target: 0 },
+              { id: '2', gate: 'Z', target: 0 },
+              { id: '3', gate: 'H', target: 0 },
+            ];
+          }
+          updateQubitSelectOptions();
+          runSimulation();
+        });
+      });
+
+      updateQubitSelectOptions();
+      await runSimulation();
+    });
+  </script>
+
+  <style>
+    .lab-container {
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 30px 20px;
+    }
+
+    .lab-header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .lab-grid {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 20px;
+    }
+
+    .lab-panel {
+      padding: 20px;
+    }
+
+    .toolbox-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px;
+      background: rgba(0, 0, 0, 0.35);
+      border-radius: 8px;
+      border: 1px solid var(--border-subtle);
+    }
+
+    .tool-gate-btn {
+      width: 44px;
+      height: 44px;
+    }
+
+    @media (max-width: 900px) {
+      .lab-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</body>
+</html>

@@ -1,0 +1,231 @@
+---
+import Navbar from '../components/Navbar.astro';
+import { LEVELS } from '../data/levels';
+import '../styles/global.css';
+import '../styles/animations.css';
+---
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SECTOR MATRIX | Quantum Maze</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+</head>
+<body>
+  <Navbar activePage="levels" />
+
+  <main class="levels-container">
+    <div class="levels-header">
+      <span class="quantum-badge badge-cyan" style="margin-bottom: 8px;">EXPERIMENTAL SECTOR MATRIX</span>
+      <h1 style="font-size: 36px; color: #ffffff;">SELECT CONTAINMENT SECTOR</h1>
+      <p style="color: #94a3b8; font-size: 14px; max-width: 600px; margin: 0 auto;">
+        Choose a quantum facility sector to initialize. Each sector demonstrates advanced quantum information mechanics from basic superposition to multi-qubit entanglement networks.
+      </p>
+    </div>
+
+    <div class="levels-grid" id="levelsGrid">
+      {LEVELS.map((lvl) => (
+        <div class="glass-panel level-card" data-level-id={lvl.id}>
+          <div class="level-top">
+            <div class="level-num">SECTOR {lvl.levelNumber.toString().padStart(2, '0')}</div>
+            <span class={`quantum-badge ${lvl.difficulty === 'EASY' ? 'badge-emerald' : (lvl.difficulty === 'NORMAL' ? 'badge-amber' : 'badge-crimson')}`}>
+              {lvl.difficulty}
+            </span>
+          </div>
+
+          <h3 class="level-title">{lvl.title}</h3>
+          <p class="level-subtitle">{lvl.subtitle}</p>
+          <p class="level-desc">{lvl.briefing}</p>
+
+          <div class="level-meta">
+            <div class="meta-item">
+              <span class="meta-label">Qubits:</span>
+              <span class="meta-val">{lvl.numQubits}</span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">Budget:</span>
+              <span class="meta-val">{lvl.measurementBudget} Meas</span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">Gates:</span>
+              <span class="meta-val">{lvl.allowedGates.join(', ')}</span>
+            </div>
+          </div>
+
+          <div class="level-bottom">
+            <div class="level-stars" data-stars-for={lvl.id}>
+              <span class="star-empty">★</span>
+              <span class="star-empty">★</span>
+              <span class="star-empty">★</span>
+            </div>
+
+            <a href={`/game?level=${lvl.id}`} class="btn-quantum level-enter-btn" data-btn-for={lvl.id}>
+              ENTER SECTOR ➔
+            </a>
+          </div>
+        </div>
+      ))}
+    </div>
+  </main>
+
+  <script>
+    import { StorageManager } from '../lib/storage/storage';
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const progress = StorageManager.getProgress();
+
+      document.querySelectorAll('.level-card').forEach((card) => {
+        const levelId = (card as HTMLElement).dataset.levelId;
+        if (!levelId) return;
+
+        const prog = progress[levelId];
+        const enterBtn = card.querySelector(`[data-btn-for="${levelId}"]`) as HTMLAnchorElement;
+        const starsContainer = card.querySelector(`[data-stars-for="${levelId}"]`);
+
+        if (prog && prog.unlocked) {
+          card.classList.remove('locked');
+          if (enterBtn) {
+            enterBtn.classList.remove('btn-quantum-secondary');
+            enterBtn.classList.add('btn-quantum');
+            enterBtn.style.pointerEvents = 'auto';
+            enterBtn.textContent = prog.completed ? 'REPLAY SECTOR ↺' : 'ENTER SECTOR ➔';
+          }
+          if (starsContainer && prog.stars > 0) {
+            let starsHtml = '';
+            for (let s = 1; s <= 3; s++) {
+              starsHtml += s <= prog.stars ? '<span style="color: var(--quantum-amber);">★</span>' : '<span style="color: #475569;">★</span>';
+            }
+            starsContainer.innerHTML = starsHtml;
+          }
+        } else {
+          // Locked
+          card.classList.add('locked');
+          if (enterBtn) {
+            enterBtn.classList.remove('btn-quantum');
+            enterBtn.classList.add('btn-quantum-secondary');
+            enterBtn.style.opacity = '0.5';
+            enterBtn.textContent = '🔒 LOCKED';
+          }
+        }
+      });
+    });
+  </script>
+
+  <style>
+    .levels-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+
+    .levels-header {
+      text-align: center;
+      margin-bottom: 36px;
+    }
+
+    .levels-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+      gap: 20px;
+    }
+
+    .level-card {
+      display: flex;
+      flex-direction: column;
+      padding: 20px;
+      transition: transform 0.2s ease, border-color 0.2s ease;
+    }
+
+    .level-card:hover:not(.locked) {
+      transform: translateY(-4px);
+      border-color: var(--quantum-cyan);
+    }
+
+    .level-card.locked {
+      opacity: 0.6;
+      filter: grayscale(0.6);
+    }
+
+    .level-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .level-num {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      color: var(--quantum-cyan);
+    }
+
+    .level-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: #ffffff;
+      margin-bottom: 4px;
+    }
+
+    .level-subtitle {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: #38bdf8;
+      margin-bottom: 12px;
+    }
+
+    .level-desc {
+      font-size: 12px;
+      line-height: 1.5;
+      color: #94a3b8;
+      margin-bottom: 16px;
+      flex: 1;
+    }
+
+    .level-meta {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+      padding: 10px;
+      background: rgba(0,0,0,0.3);
+      border-radius: 8px;
+      margin-bottom: 16px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+    }
+
+    .meta-label {
+      color: #64748b;
+    }
+
+    .meta-val {
+      color: #e2e8f0;
+      font-weight: 600;
+    }
+
+    .level-bottom {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .level-stars {
+      font-size: 16px;
+      letter-spacing: 2px;
+    }
+
+    .star-empty {
+      color: #334155;
+    }
+
+    .level-enter-btn {
+      padding: 8px 14px;
+      font-size: 12px;
+    }
+  </style>
+</body>
+</html>

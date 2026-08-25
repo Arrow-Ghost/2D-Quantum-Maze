@@ -1,0 +1,278 @@
+---
+// MeasurementSection.astro - Section 10: Wavefunction Collapse & Physical Measurement
+---
+
+<section class="landing-section measurement-section" id="sectionMeasurement">
+  <div class="section-header-block">
+    <div class="section-tag">
+      <span class="tag-number">05</span>
+      <span class="tag-label">WAVEFUNCTION COLLAPSE</span>
+    </div>
+    <h2 class="section-main-heading">
+      MEASUREMENT: <span class="text-emerald-glow">PROJECTION</span>.
+    </h2>
+    <p class="section-sub-heading">
+      "Possibility becomes definite outcome. Observation forces the quantum system into classical reality."
+    </p>
+  </div>
+
+  <div class="measurement-display-card glass-panel" id="measResultBox">
+    <div class="collapse-sim-header">
+      <div class="sim-pulse-ring" id="measPulseIndicator"></div>
+      <div class="sim-status-title">BORN-RULE STATE PROJECTION</div>
+    </div>
+
+    <div class="collapse-sequence-grid">
+      <!-- State Before Measurement -->
+      <div class="collapse-state-col">
+        <span class="collapse-col-label">BEFORE MEASUREMENT</span>
+        <div class="prob-spectrum-box">
+          <div class="spectrum-row">
+            <span class="spectrum-state">|0⟩</span>
+            <div class="spectrum-track"><div class="spectrum-fill fill-cyan" style="width: 73%;"></div></div>
+            <span class="spectrum-val">73%</span>
+          </div>
+          <div class="spectrum-row">
+            <span class="spectrum-state">|1⟩</span>
+            <div class="spectrum-track"><div class="spectrum-fill fill-magenta" style="width: 27%;"></div></div>
+            <span class="spectrum-val">27%</span>
+          </div>
+        </div>
+        <p class="collapse-col-caption">Continuous probabilistic superposition |ψ⟩ = 0.854|0⟩ + 0.520|1⟩.</p>
+      </div>
+
+      <!-- Measurement Event Pulse -->
+      <div class="collapse-action-col">
+        <div class="meas-symbol-icon">⚡ M</div>
+        <span class="meas-action-text">PROJECTION OPERATOR</span>
+      </div>
+
+      <!-- State After Collapse -->
+      <div class="collapse-state-col">
+        <span class="collapse-col-label">AFTER MEASUREMENT</span>
+        <div class="collapsed-eigenstate-box" id="measOutcomeVal">
+          <span class="eigenstate-badge">COLLAPSED</span>
+          <span class="eigenstate-val">|0⟩</span>
+          <span class="eigenstate-prob">P(|0⟩) = 100.0%</span>
+        </div>
+        <p class="collapse-col-caption">Statevector instantly collapsed into classical basis eigenvalue.</p>
+      </div>
+    </div>
+
+    <!-- Educational Footer Note -->
+    <div class="collapse-notes-footer">
+      <div class="note-item">
+        <span class="note-bullet">◈</span>
+        <span>Measurement consumes quantum energy budget and permanently freezes qubit until new unitary gates are applied.</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .measurement-section {
+    position: relative;
+    padding: 120px 24px;
+    max-width: 1040px;
+    margin: 0 auto;
+    z-index: 10;
+  }
+
+  .text-emerald-glow {
+    color: var(--quantum-emerald);
+    text-shadow: 0 0 30px rgba(0, 245, 155, 0.4);
+  }
+
+  .measurement-display-card {
+    padding: 40px;
+    border: 1px solid var(--border-subtle);
+    box-shadow: 0 0 40px rgba(0, 0, 0, 0.5);
+    transition: all 0.4s ease;
+  }
+
+  .collapse-sim-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding-bottom: 24px;
+    margin-bottom: 28px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  }
+
+  .sim-pulse-ring {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--quantum-emerald);
+    box-shadow: 0 0 14px var(--quantum-emerald);
+  }
+
+  .sim-status-title {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    color: #f1f5f9;
+  }
+
+  .collapse-sequence-grid {
+    display: grid;
+    grid-template-columns: 1.2fr 0.6fr 1.2fr;
+    gap: 24px;
+    align-items: center;
+    margin-bottom: 32px;
+  }
+
+  .collapse-state-col {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .collapse-col-label {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    color: #64748b;
+  }
+
+  .prob-spectrum-box {
+    background: rgba(10, 16, 26, 0.85);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 8px;
+    padding: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .spectrum-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+  }
+
+  .spectrum-state {
+    color: #f1f5f9;
+    font-weight: 700;
+    width: 24px;
+  }
+
+  .spectrum-track {
+    flex: 1;
+    height: 6px;
+    background: rgba(0, 0, 0, 0.5);
+    border-radius: 9999px;
+    overflow: hidden;
+  }
+
+  .spectrum-fill {
+    height: 100%;
+    border-radius: 9999px;
+  }
+
+  .fill-cyan {
+    background: var(--quantum-cyan);
+  }
+
+  .fill-magenta {
+    background: #c77dff;
+  }
+
+  .spectrum-val {
+    color: #94a3b8;
+    font-weight: 600;
+    width: 32px;
+    text-align: right;
+  }
+
+  .collapse-col-caption {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    line-height: 1.4;
+    color: #64748b;
+  }
+
+  .collapse-action-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 6px;
+  }
+
+  .meas-symbol-icon {
+    font-family: var(--font-mono);
+    font-size: 24px;
+    font-weight: 800;
+    color: var(--quantum-emerald);
+    text-shadow: 0 0 20px rgba(0, 245, 155, 0.8);
+  }
+
+  .meas-action-text {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.15em;
+    color: #64748b;
+  }
+
+  .collapsed-eigenstate-box {
+    background: rgba(0, 245, 155, 0.08);
+    border: 1px solid var(--quantum-emerald);
+    border-radius: 8px;
+    padding: 18px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    box-shadow: 0 0 20px rgba(0, 245, 155, 0.15);
+  }
+
+  .eigenstate-badge {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    color: var(--quantum-emerald);
+  }
+
+  .eigenstate-val {
+    font-family: var(--font-mono);
+    font-size: 28px;
+    font-weight: 800;
+    color: #ffffff;
+    text-shadow: 0 0 15px rgba(0, 245, 155, 0.8);
+  }
+
+  .eigenstate-prob {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--quantum-emerald);
+  }
+
+  .collapse-notes-footer {
+    padding-top: 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: #94a3b8;
+  }
+
+  .note-item {
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+  }
+
+  .note-bullet {
+    color: var(--quantum-emerald);
+  }
+
+  @media (max-width: 768px) {
+    .collapse-sequence-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

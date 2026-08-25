@@ -1,0 +1,167 @@
+---
+interface Props {
+  activePage?: 'home' | 'game' | 'levels' | 'lab' | 'tutorial' | 'leaderboard' | 'settings';
+}
+const { activePage = 'home' } = Astro.props;
+---
+
+<header class="main-navbar">
+  <div class="nav-brand">
+    <a href="/" class="brand-link">
+      <div class="brand-logo">
+        <span class="logo-core">Ψ</span>
+      </div>
+      <div class="brand-text">
+        <span class="brand-title">QUANTUM MAZE</span>
+        <span class="brand-sub">REALITY IS A STATE</span>
+      </div>
+    </a>
+  </div>
+
+  <nav class="nav-links">
+    <a href="/levels" class={`nav-item ${activePage === 'levels' || activePage === 'game' ? 'active' : ''}`}>
+      <span class="nav-icon">◈</span> Levels
+    </a>
+    <a href="/lab" class={`nav-item ${activePage === 'lab' ? 'active' : ''}`}>
+      <span class="nav-icon">⚗</span> Quantum Lab
+    </a>
+    <a href="/tutorial" class={`nav-item ${activePage === 'tutorial' ? 'active' : ''}`}>
+      <span class="nav-icon">📖</span> Guide
+    </a>
+    <a href="/leaderboard" class={`nav-item ${activePage === 'leaderboard' ? 'active' : ''}`}>
+      <span class="nav-icon">🏆</span> Records
+    </a>
+    <a href="/settings" class={`nav-item ${activePage === 'settings' ? 'active' : ''}`}>
+      <span class="nav-icon">⚙</span> Settings
+    </a>
+  </nav>
+
+  <div class="nav-engine-status" id="backendStatusBadge">
+    <span class="status-dot online"></span>
+    <span class="status-text">Qiskit Engine Active</span>
+  </div>
+</header>
+
+<style>
+  .main-navbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 24px;
+    background: rgba(8, 12, 17, 0.92);
+    backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--border-subtle);
+    z-index: 50;
+  }
+
+  .nav-brand {
+    display: flex;
+    align-items: center;
+  }
+
+  .brand-link {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-decoration: none;
+  }
+
+  .brand-logo {
+    width: 34px;
+    height: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, rgba(0, 240, 255, 0.2), rgba(123, 44, 191, 0.3));
+    border: 1px solid var(--quantum-cyan);
+    border-radius: 8px;
+    box-shadow: 0 0 12px rgba(0, 240, 255, 0.3);
+  }
+
+  .logo-core {
+    font-family: var(--font-mono);
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--quantum-cyan);
+    text-shadow: 0 0 8px rgba(0, 240, 255, 0.8);
+  }
+
+  .brand-text {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .brand-title {
+    font-family: var(--font-display);
+    font-size: 16px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    color: #f8fafc;
+  }
+
+  .brand-sub {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    color: var(--quantum-cyan);
+    text-transform: uppercase;
+  }
+
+  .nav-links {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .nav-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    color: #94a3b8;
+    text-decoration: none;
+    transition: all 0.2s ease;
+  }
+
+  .nav-item:hover {
+    color: #f1f5f9;
+    background: rgba(255, 255, 255, 0.04);
+  }
+
+  .nav-item.active {
+    color: var(--quantum-cyan);
+    background: rgba(0, 240, 255, 0.1);
+    border: 1px solid rgba(0, 240, 255, 0.3);
+    box-shadow: 0 0 10px rgba(0, 240, 255, 0.2);
+  }
+
+  .nav-engine-status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 12px;
+    background: rgba(13, 20, 30, 0.8);
+    border: 1px solid rgba(0, 245, 155, 0.3);
+    border-radius: 9999px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--quantum-emerald);
+  }
+
+  .status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--quantum-emerald);
+    box-shadow: 0 0 8px var(--quantum-emerald);
+  }
+
+  @media (max-width: 860px) {
+    .brand-sub, .nav-engine-status {
+      display: none;
+    }
+  }
+</style>

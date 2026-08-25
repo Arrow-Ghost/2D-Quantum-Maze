@@ -1,0 +1,207 @@
+---
+// ExitProbabilitySection.astro - Section 12: Probabilistic Exit Vortex & Dual Win Condition
+---
+
+<section class="landing-section exitprob-section" id="sectionExitProb">
+  <div class="section-header-block">
+    <div class="section-tag">
+      <span class="tag-number">07</span>
+      <span class="tag-label">CONVERGENCE THRESHOLD</span>
+    </div>
+    <h2 class="section-main-heading">
+      THE PROBABILISTIC <span class="text-emerald-glow">EXIT</span>.
+    </h2>
+    <p class="section-sub-heading">
+      "The exit remains spatially fixed, but its quantum accessibility evolves through the persistent Qiskit circuit."
+    </p>
+  </div>
+
+  <div class="exit-convergence-display glass-panel">
+    <!-- Live Convergence Progress Meter -->
+    <div class="exit-vortex-header">
+      <div class="exit-portal-symbol">◉</div>
+      <div class="exit-meter-meta">
+        <span class="exit-meter-label">EXIT PORTAL COHERENCE</span>
+        <div class="exit-large-prob" id="finalExitProb">96.4%</div>
+      </div>
+    </div>
+
+    <!-- Threshold Milestone Tracks -->
+    <div class="threshold-track-container">
+      <div class="threshold-step passed">
+        <span class="step-point">20%</span>
+        <span class="step-desc">Unstable</span>
+      </div>
+      <div class="threshold-step passed">
+        <span class="step-point">45%</span>
+        <span class="step-desc">Superposition</span>
+      </div>
+      <div class="threshold-step passed">
+        <span class="step-point">70%</span>
+        <span class="step-desc">Sector 01 Unlock</span>
+      </div>
+      <div class="threshold-step passed">
+        <span class="step-point">85%</span>
+        <span class="step-desc">Expert Sectors</span>
+      </div>
+      <div class="threshold-step active-target">
+        <span class="step-point">96%</span>
+        <span class="step-desc">Fully Stabilized</span>
+      </div>
+    </div>
+
+    <!-- The Dual Win Condition Formula -->
+    <div class="win-formula-box">
+      <div class="formula-title">AUTHORIZED CONTAINMENT RELEASE PROTOCOL</div>
+      <div class="formula-expression">
+        VICTORY = [ AT_EXIT_TILE ] ∧ [ P(EXIT) ≥ THRESHOLD ] ∧ [ CHECKPOINTS_SECURED ]
+      </div>
+      <div class="formula-caption">
+        You must physically navigate the changing maze and simultaneously manipulate the quantum state to achieve escape coherence.
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .exitprob-section {
+    position: relative;
+    padding: 120px 24px;
+    max-width: 1040px;
+    margin: 0 auto;
+    z-index: 10;
+  }
+
+  .text-emerald-glow {
+    color: var(--quantum-emerald);
+    text-shadow: 0 0 30px rgba(0, 245, 155, 0.4);
+  }
+
+  .exit-convergence-display {
+    padding: 44px 36px;
+    border: 1px solid var(--border-subtle);
+    box-shadow: 0 0 45px rgba(0, 0, 0, 0.5);
+  }
+
+  .exit-vortex-header {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    padding-bottom: 32px;
+    margin-bottom: 32px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  }
+
+  .exit-portal-symbol {
+    font-size: 48px;
+    color: var(--quantum-emerald);
+    text-shadow: 0 0 25px rgba(0, 245, 155, 0.8);
+    animation: portalPulse 2.5s infinite ease-in-out;
+  }
+
+  @keyframes portalPulse {
+    0%, 100% { transform: scale(1); opacity: 0.8; }
+    50% { transform: scale(1.15); opacity: 1; }
+  }
+
+  .exit-meter-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .exit-meter-label {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.16em;
+    color: #64748b;
+  }
+
+  .exit-large-prob {
+    font-family: var(--font-mono);
+    font-size: clamp(36px, 5vw, 64px);
+    font-weight: 900;
+    color: var(--quantum-emerald);
+    text-shadow: 0 0 20px rgba(0, 245, 155, 0.6);
+  }
+
+  .threshold-track-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 16px;
+    margin-bottom: 36px;
+  }
+
+  .threshold-step {
+    padding: 16px;
+    background: rgba(10, 16, 26, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    font-family: var(--font-mono);
+  }
+
+  .threshold-step.passed {
+    border-color: rgba(0, 240, 255, 0.3);
+  }
+
+  .threshold-step.active-target {
+    background: rgba(0, 245, 155, 0.1);
+    border-color: var(--quantum-emerald);
+    box-shadow: 0 0 20px rgba(0, 245, 155, 0.2);
+  }
+
+  .step-point {
+    font-size: 18px;
+    font-weight: 700;
+    color: #f1f5f9;
+  }
+
+  .active-target .step-point {
+    color: var(--quantum-emerald);
+  }
+
+  .step-desc {
+    font-size: 11px;
+    color: #64748b;
+  }
+
+  .win-formula-box {
+    text-align: center;
+    padding: 24px;
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px dashed rgba(255, 255, 255, 0.15);
+    border-radius: 8px;
+  }
+
+  .formula-title {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    color: var(--quantum-amber);
+    margin-bottom: 10px;
+  }
+
+  .formula-expression {
+    font-family: var(--font-mono);
+    font-size: clamp(13px, 1.8vw, 17px);
+    font-weight: 700;
+    color: #f8fafc;
+    margin-bottom: 8px;
+  }
+
+  .formula-caption {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    line-height: 1.5;
+    color: #94a3b8;
+  }
+
+  @media (max-width: 768px) {
+    .exit-convergence-display {
+      padding: 24px 16px;
+    }
+  }
+</style>

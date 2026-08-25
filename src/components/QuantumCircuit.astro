@@ -1,0 +1,32 @@
+---
+// QuantumCircuit Component - Visual circuit diagram & gate sequence
+---
+
+<div class="glass-panel circuit-container">
+  <div class="panel-header">
+    <span class="panel-title">Quantum Circuit Schema</span>
+    <span class="quantum-badge badge-cyan" id="circuitQubitBadge">1 Qubit</span>
+  </div>
+
+  <div class="circuit-wire-visualizer" id="circuitWiresContainer">
+    <!-- Live dynamic circuit schematic will be rendered here -->
+  </div>
+
+  <div style="margin-top: 10px;">
+    <span class="hud-label" style="display: block; margin-bottom: 4px;">Qiskit ASCII Circuit:</span>
+    <pre class="ascii-circuit" id="asciiCircuitDisplay">q0: ──[|0⟩]──</pre>
+  </div>
+</div>
+
+<style>
+  .circuit-wire-visualizer {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 12px;
+    background: rgba(7, 12, 18, 0.8);
+    border: 1px solid rgba(0, 240, 255, 0.2);
+    border-radius: 8px;
+    min-height: 80px;
+  }
+</style>

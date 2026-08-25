@@ -1,0 +1,259 @@
+---
+// FinalCTASection.astro - Section 13: Final Laboratory Portals & Navigation Hub
+---
+
+<section class="landing-section finalcta-section" id="sectionFinalCTA">
+  <div class="final-cta-container">
+    <div class="final-status-badge">
+      <span class="status-indicator"></span>
+      <span>SYSTEM COHERENT // ALL SECTORS OPERATIONAL</span>
+    </div>
+
+    <h2 class="final-headline">
+      THE SYSTEM IS <span class="text-cyan-glow">READY</span>.
+    </h2>
+
+    <p class="final-subtext">
+      Select an experimentation protocol to initialize quantum containment.
+    </p>
+
+    <!-- 4 Experiment Portals Matrix -->
+    <div class="portals-matrix-grid">
+      <!-- 1. Start Experiment (Primary) -->
+      <a href="/game?level=level-01" class="portal-card primary-portal final-cta-btn">
+        <div class="portal-header">
+          <span class="portal-tag">PROTOCOL 01</span>
+          <span class="portal-icon">⚡</span>
+        </div>
+        <h3 class="portal-title">START EXPERIMENT</h3>
+        <p class="portal-desc">Enter Sector 01: Superposition Foundation. Dynamic 6×17 grid with 42 invariant walls.</p>
+        <div class="portal-action-label">INITIALIZE CONTAINMENT ▶</div>
+      </a>
+
+      <!-- 2. Sector Matrix -->
+      <a href="/levels" class="portal-card final-cta-btn">
+        <div class="portal-header">
+          <span class="portal-tag">PROTOCOL 02</span>
+          <span class="portal-icon">◈</span>
+        </div>
+        <h3 class="portal-title">SECTOR MATRIX</h3>
+        <p class="portal-desc">Explore 8 increasingly complex quantum sectors from 1-qubit phase vectors to 4-qubit master reactors.</p>
+        <div class="portal-action-label">VIEW ALL SECTORS ▶</div>
+      </a>
+
+      <!-- 3. Quantum Lab Sandbox -->
+      <a href="/lab" class="portal-card final-cta-btn">
+        <div class="portal-header">
+          <span class="portal-tag">PROTOCOL 03</span>
+          <span class="portal-icon">⚗</span>
+        </div>
+        <h3 class="portal-title">QUANTUM LAB</h3>
+        <p class="portal-desc">Unrestricted sandbox circuit composer. Build custom quantum circuits and simulate real statevectors.</p>
+        <div class="portal-action-label">OPEN LAB SANDBOX ▶</div>
+      </a>
+
+      <!-- 4. Quantum Guide -->
+      <a href="/tutorial" class="portal-card final-cta-btn">
+        <div class="portal-header">
+          <span class="portal-tag">PROTOCOL 04</span>
+          <span class="portal-icon">📖</span>
+        </div>
+        <h3 class="portal-title">QUANTUM GUIDE</h3>
+        <p class="portal-desc">Theoretical reference covering Hilbert space, Bloch sphere, phase kickback, and Bell states.</p>
+        <div class="portal-action-label">ACCESS ARCHIVES ▶</div>
+      </a>
+    </div>
+
+    <!-- System Certification Bar -->
+    <div class="system-cert-bar">
+      <div class="cert-item">
+        <span class="cert-dot"></span> Real Qiskit Aer Statevector Simulation
+      </div>
+      <div class="cert-item">
+        <span class="cert-dot"></span> Exact Wall Count Invariant Guarantee
+      </div>
+      <div class="cert-item">
+        <span class="cert-dot"></span> 100% Classical BFS Path Solvability
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .finalcta-section {
+    position: relative;
+    padding: 140px 24px 100px;
+    max-width: 1100px;
+    margin: 0 auto;
+    z-index: 10;
+    text-align: center;
+  }
+
+  .final-cta-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .final-status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 16px;
+    background: rgba(0, 245, 155, 0.1);
+    border: 1px solid rgba(0, 245, 155, 0.3);
+    border-radius: 9999px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    color: var(--quantum-emerald);
+    margin-bottom: 24px;
+  }
+
+  .status-indicator {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--quantum-emerald);
+    box-shadow: 0 0 10px var(--quantum-emerald);
+  }
+
+  .final-headline {
+    font-family: var(--font-display);
+    font-size: clamp(38px, 6vw, 68px);
+    font-weight: 900;
+    letter-spacing: 0.04em;
+    color: #f8fafc;
+    margin-bottom: 16px;
+  }
+
+  .final-subtext {
+    font-size: clamp(15px, 1.2vw, 18px);
+    color: #94a3b8;
+    max-width: 600px;
+    margin-bottom: 56px;
+  }
+
+  .portals-matrix-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 20px;
+    width: 100%;
+    text-align: left;
+    margin-bottom: 56px;
+  }
+
+  .portal-card {
+    padding: 28px 24px;
+    background: rgba(10, 16, 26, 0.75);
+    border: 1px solid var(--border-subtle);
+    border-radius: 8px;
+    text-decoration: none;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(12px);
+  }
+
+  .portal-card:hover {
+    border-color: rgba(0, 240, 255, 0.5);
+    background: rgba(14, 22, 36, 0.95);
+    transform: translateY(-4px);
+    box-shadow: 0 0 30px rgba(0, 240, 255, 0.15);
+  }
+
+  .portal-card.primary-portal {
+    background: linear-gradient(135deg, rgba(0, 240, 255, 0.15), rgba(10, 16, 26, 0.9));
+    border-color: var(--quantum-cyan);
+    box-shadow: 0 0 35px rgba(0, 240, 255, 0.25);
+  }
+
+  .portal-card.primary-portal:hover {
+    box-shadow: 0 0 45px rgba(0, 240, 255, 0.4);
+  }
+
+  .portal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+  }
+
+  .portal-tag {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    color: var(--quantum-cyan);
+  }
+
+  .portal-icon {
+    font-size: 20px;
+  }
+
+  .portal-title {
+    font-family: var(--font-display);
+    font-size: 17px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    color: #f1f5f9;
+    margin-bottom: 10px;
+  }
+
+  .portal-desc {
+    font-size: 13px;
+    line-height: 1.5;
+    color: #94a3b8;
+    margin-bottom: 20px;
+  }
+
+  .portal-action-label {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    color: var(--quantum-cyan);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .system-cert-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 32px;
+    padding: 16px 28px;
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 9999px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: #64748b;
+  }
+
+  .cert-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .cert-dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--quantum-emerald);
+  }
+
+  @media (max-width: 768px) {
+    .finalcta-section {
+      padding: 100px 16px 60px;
+    }
+    .system-cert-bar {
+      flex-direction: column;
+      gap: 10px;
+      border-radius: 12px;
+    }
+  }
+</style>

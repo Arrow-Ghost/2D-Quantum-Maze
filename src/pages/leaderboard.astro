@@ -1,0 +1,175 @@
+---
+import Navbar from '../components/Navbar.astro';
+import '../styles/global.css';
+import '../styles/animations.css';
+---
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RESEARCH RECORDS | Quantum Maze</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+</head>
+<body>
+  <Navbar activePage="leaderboard" />
+
+  <main class="records-container">
+    <div class="records-header">
+      <span class="quantum-badge badge-cyan" style="margin-bottom: 8px;">RESEARCH ARCHIVE</span>
+      <h1 style="font-size: 32px; color: #ffffff;">ESCAPE PERFORMANCE RECORDS</h1>
+      <p style="color: #94a3b8; font-size: 14px; max-width: 600px; margin: 0 auto;">
+        Local experiment log recording top sector completions, completion times, and quantum gate efficiencies.
+      </p>
+    </div>
+
+    <!-- Player Name Customizer -->
+    <div class="glass-panel" style="padding: 16px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <span class="hud-label">Observer ID:</span>
+        <input type="text" id="inputPlayerName" value="Quantum-Observer" class="btn-quantum-secondary" style="padding: 6px 12px; font-family: var(--font-mono); color: var(--quantum-cyan); font-weight: 600;" />
+        <button id="btnSavePlayerName" class="btn-quantum" style="padding: 6px 12px; font-size: 11px;">Save ID</button>
+      </div>
+
+      <button id="btnClearRecords" class="btn-quantum-secondary" style="padding: 6px 12px; font-size: 11px; color: #f87171;">
+        Clear Local Records ✕
+      </button>
+    </div>
+
+    <!-- Leaderboard Table -->
+    <div class="glass-panel" style="padding: 20px; overflow-x: auto;">
+      <table class="records-table">
+        <thead>
+          <tr>
+            <th>Rank</th>
+            <th>Observer</th>
+            <th>Sector</th>
+            <th>Score</th>
+            <th>Time</th>
+            <th>Gates</th>
+            <th>Meas</th>
+            <th>Efficiency</th>
+            <th>Date</th>
+          </tr>
+        </thead>
+        <tbody id="leaderboardTbody">
+          <!-- Populated from localStorage -->
+        </tbody>
+      </table>
+      <div id="emptyRecordsMsg" style="display: none; text-align: center; padding: 40px 0; color: #64748b; font-family: var(--font-mono);">
+        No experiment records found. Complete sectors to record telemetry.
+      </div>
+    </div>
+  </main>
+
+  <script>
+    import { StorageManager } from '../lib/storage/storage';
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const inputPlayerName = document.getElementById('inputPlayerName') as HTMLInputElement;
+      const btnSavePlayerName = document.getElementById('btnSavePlayerName');
+      const btnClearRecords = document.getElementById('btnClearRecords');
+      const leaderboardTbody = document.getElementById('leaderboardTbody');
+      const emptyRecordsMsg = document.getElementById('emptyRecordsMsg');
+
+      if (inputPlayerName) {
+        inputPlayerName.value = StorageManager.getPlayerName();
+      }
+
+      btnSavePlayerName?.addEventListener('click', () => {
+        if (inputPlayerName) {
+          StorageManager.setPlayerName(inputPlayerName.value);
+          alert('Observer ID saved!');
+        }
+      });
+
+      btnClearRecords?.addEventListener('click', () => {
+        if (confirm('Clear all local experiment records?')) {
+          localStorage.removeItem('quantum_maze_leaderboard');
+          renderTable();
+        }
+      });
+
+      function renderTable() {
+        const records = StorageManager.getLeaderboard();
+        if (!leaderboardTbody || !emptyRecordsMsg) return;
+
+        if (records.length === 0) {
+          leaderboardTbody.innerHTML = '';
+          emptyRecordsMsg.style.display = 'block';
+          return;
+        }
+
+        emptyRecordsMsg.style.display = 'none';
+        leaderboardTbody.innerHTML = records
+          .map((rec, idx) => {
+            const mins = Math.floor(rec.elapsedTime / 60);
+            const secs = (rec.elapsedTime % 60).toFixed(1);
+            const timeStr = `${mins.toString().padStart(2, '0')}:${secs.padStart(4, '0')}`;
+            const dateStr = new Date(rec.date).toLocaleDateString();
+
+            const rankBadge = idx === 0 ? '🥇 1' : (idx === 1 ? '🥈 2' : (idx === 2 ? '🥉 3' : (idx + 1).toString()));
+
+            return `
+              <tr>
+                <td style="font-weight: 700; color: var(--quantum-cyan);">${rankBadge}</td>
+                <td style="font-weight: 600; color: #f1f5f9;">${rec.playerName}</td>
+                <td>Sector ${rec.levelNumber.toString().padStart(2, '0')}</td>
+                <td style="font-weight: 700; color: #ffffff;">${rec.totalScore}</td>
+                <td>${timeStr}</td>
+                <td>${rec.gatesUsed}</td>
+                <td>${rec.measurementsUsed}</td>
+                <td style="color: var(--quantum-emerald);">+${rec.quantumEfficiency}</td>
+                <td style="color: #64748b; font-size: 11px;">${dateStr}</td>
+              </tr>
+            `;
+          })
+          .join('');
+      }
+
+      renderTable();
+    });
+  </script>
+
+  <style>
+    .records-container {
+      max-width: 1060px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+
+    .records-header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .records-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-family: var(--font-mono);
+      font-size: 13px;
+    }
+
+    .records-table th {
+      text-align: left;
+      padding: 12px;
+      color: #64748b;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .records-table td {
+      padding: 12px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      color: #cbd5e1;
+    }
+
+    .records-table tr:hover td {
+      background: rgba(0, 240, 255, 0.03);
+    }
+  </style>
+</body>
+</html>

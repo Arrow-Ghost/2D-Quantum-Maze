@@ -1,0 +1,35 @@
+---
+// QuantumState Component - Dirac statevector & live probability breakdown
+---
+
+<div class="glass-panel state-panel">
+  <div class="panel-header">
+    <span class="panel-title">Quantum Statevector</span>
+    <span class="quantum-badge badge-emerald" id="statePurityBadge">Pure State</span>
+  </div>
+
+  <div>
+    <span class="hud-label" style="display: block; margin-bottom: 4px;">Dirac Notation |ψ⟩:</span>
+    <div class="dirac-formula" id="diracFormulaDisplay">|0⟩</div>
+  </div>
+
+  <div style="margin-top: 14px;">
+    <span class="hud-label" style="display: block; margin-bottom: 8px;">Qubit State Probabilities:</span>
+    <div id="qubitProbabilitiesList">
+      <div class="prob-row">
+        <span class="prob-label">q0:</span>
+        <div class="prob-bar-track">
+          <div class="prob-bar-fill" style="width: 0%;"></div>
+        </div>
+        <span class="prob-value">0%</span>
+      </div>
+    </div>
+  </div>
+
+  <div style="margin-top: 14px;">
+    <span class="hud-label" style="display: block; margin-bottom: 8px;">Computational Basis States:</span>
+    <div id="basisStatesList" style="display: flex; flex-direction: column; gap: 6px;">
+      <!-- Basis states (|00>, |01>, |10>, |11>) dynamically populated -->
+    </div>
+  </div>
+</div>

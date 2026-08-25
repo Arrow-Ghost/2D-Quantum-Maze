@@ -1,0 +1,311 @@
+---
+import Navbar from '../components/Navbar.astro';
+import '../styles/global.css';
+import '../styles/game.css';
+import '../styles/hud.css';
+import '../styles/animations.css';
+---
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QUANTUM GUIDE | Interactive Principles</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+</head>
+<body>
+  <Navbar activePage="tutorial" />
+
+  <main class="tutorial-container">
+    <div class="tutorial-header">
+      <span class="quantum-badge badge-cyan" style="margin-bottom: 8px;">QUANTUM INFORMATION PROTOCOL</span>
+      <h1 style="font-size: 34px; color: #ffffff;">INTERACTIVE QUANTUM GUIDE</h1>
+      <p style="color: #94a3b8; font-size: 14px; max-width: 680px; margin: 0 auto;">
+        Master the fundamental principles of quantum computing behind Quantum Maze. Every module includes interactive live Qiskit simulations.
+      </p>
+    </div>
+
+    <!-- Guide Modules -->
+    <div class="modules-stack">
+      <!-- 1. What is a Qubit? -->
+      <section class="glass-panel module-card">
+        <div class="module-number">MODULE 01</div>
+        <h2 class="module-title">What is a Qubit?</h2>
+        <div class="module-body">
+          <div class="module-text">
+            <p>
+              Unlike a classical bit which is strictly <strong>0</strong> or <strong>1</strong>, a quantum bit (<strong>qubit</strong>) exists as a linear superposition of both orthogonal basis states:
+            </p>
+            <div class="dirac-formula" style="margin: 12px 0;">|ψ⟩ = α|0⟩ + β|1⟩</div>
+            <p>
+              where α and β are complex probability amplitudes satisfying the normalization condition <strong>|α|² + |β|² = 1</strong>.
+            </p>
+            <div class="game-callout">
+              <strong>Game Mechanics:</strong> Every quantum door in the maze is governed by a qubit. State |0⟩ represents closed, while |1⟩ represents open.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 2. Superposition & Hadamard Gate -->
+      <section class="glass-panel module-card">
+        <div class="module-number">MODULE 02</div>
+        <h2 class="module-title">Superposition & The Hadamard Gate (H)</h2>
+        <div class="module-body">
+          <div class="module-text">
+            <p>
+              The <strong>Hadamard (H)</strong> gate is the fundamental quantum gate for generating superposition. It transforms pure computational basis states into equal linear combinations:
+            </p>
+            <div class="dirac-formula" style="margin: 12px 0;">
+              H|0⟩ = (|0⟩ + |1⟩) / √2 &nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp; H|1⟩ = (|0⟩ - |1⟩) / √2
+            </div>
+            <p>
+              This produces an exact <strong>50% probability</strong> of measuring |0⟩ and a <strong>50% probability</strong> of measuring |1⟩.
+            </p>
+            <div class="game-callout">
+              <strong>Game Mechanics:</strong> Applying H to a closed door creates an oscillating translucent barrier with 50% passage probability.
+            </div>
+          </div>
+
+          <!-- Interactive Demo Widget -->
+          <div class="interactive-widget">
+            <div class="widget-header">
+              <span>Interactive Qiskit Demo: Hadamard</span>
+              <button id="btnDemoH" class="btn-quantum" style="padding: 4px 10px; font-size: 11px;">Apply H Gate ⚡</button>
+            </div>
+            <div class="widget-output">
+              <span class="hud-label">Output State:</span>
+              <div id="demoHState" class="dirac-formula" style="margin: 6px 0;">|0⟩ (100% |0⟩)</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 3. Pauli-X Bit Flip Gate -->
+      <section class="glass-panel module-card">
+        <div class="module-number">MODULE 03</div>
+        <h2 class="module-title">Pauli-X Gate (Quantum NOT)</h2>
+        <div class="module-body">
+          <div class="module-text">
+            <p>
+              The <strong>Pauli-X</strong> gate acts as the quantum equivalent of the classical NOT inverter. It flips the computational basis states:
+            </p>
+            <div class="dirac-formula" style="margin: 12px 0;">X|0⟩ = |1⟩ &nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp; X|1⟩ = |0⟩</div>
+            <div class="game-callout">
+              <strong>Game Mechanics:</strong> Use the Pauli-X gate to invert locked doors from |0⟩ (Closed) directly to |1⟩ (100% Open).
+            </div>
+          </div>
+
+          <div class="interactive-widget">
+            <div class="widget-header">
+              <span>Interactive Qiskit Demo: Pauli-X</span>
+              <button id="btnDemoX" class="btn-quantum" style="padding: 4px 10px; font-size: 11px;">Apply X Gate ⚡</button>
+            </div>
+            <div class="widget-output">
+              <span class="hud-label">Output State:</span>
+              <div id="demoXState" class="dirac-formula" style="margin: 6px 0;">|0⟩ (100% |0⟩)</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 4. Phase & The Pauli-Z Gate -->
+      <section class="glass-panel module-card">
+        <div class="module-number">MODULE 04</div>
+        <h2 class="module-title">Relative Phase & Pauli-Z Gate</h2>
+        <div class="module-body">
+          <div class="module-text">
+            <p>
+              The <strong>Pauli-Z</strong> gate is a phase-flip operation. It leaves |0⟩ unchanged while multiplying |1⟩ by a phase factor of -1 (e^(iπ)):
+            </p>
+            <div class="dirac-formula" style="margin: 12px 0;">Z|0⟩ = |0⟩ &nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp; Z|1⟩ = -|1⟩</div>
+            <p>
+              While standard measurement probabilities (|α|²) remain unchanged, relative phase is crucial for causing <strong>constructive or destructive interference</strong> when combined with subsequent Hadamard gates.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- 5. Quantum Entanglement & CNOT -->
+      <section class="glass-panel module-card">
+        <div class="module-number">MODULE 05</div>
+        <h2 class="module-title">Entanglement & Controlled-NOT (CNOT)</h2>
+        <div class="module-body">
+          <div class="module-text">
+            <p>
+              The <strong>CNOT (Controlled-NOT)</strong> gate inverts the target qubit if and only if the control qubit is in state |1⟩. Applying H on q0 followed by CNOT(q0, q1) produces the maximally entangled <strong>Bell state</strong>:
+            </p>
+            <div class="dirac-formula" style="margin: 12px 0;">|Φ⁺⟩ = (|00⟩ + |11⟩) / √2</div>
+            <div class="game-callout">
+              <strong>Game Mechanics:</strong> Entangled doors A and B are physically synchronized. Measuring door A immediately reveals the state of door B.
+            </div>
+          </div>
+
+          <div class="interactive-widget">
+            <div class="widget-header">
+              <span>Interactive Qiskit Demo: Bell State</span>
+              <button id="btnDemoBell" class="btn-quantum" style="padding: 4px 10px; font-size: 11px;">Create Bell Pair ⚡</button>
+            </div>
+            <div class="widget-output">
+              <span class="hud-label">Output State:</span>
+              <div id="demoBellState" class="dirac-formula" style="margin: 6px 0;">|00⟩</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 6. Wavefunction Collapse -->
+      <section class="glass-panel module-card">
+        <div class="module-number">MODULE 06</div>
+        <h2 class="module-title">Wavefunction Collapse & Strategic Measurement</h2>
+        <div class="module-body">
+          <div class="module-text">
+            <p>
+              Quantum measurement is a non-reversible physical projection. When a superposition is measured, it immediately collapses into one of its definite basis eigenstates according to Born's rule:
+            </p>
+            <div class="dirac-formula" style="margin: 12px 0;">P(0) = |α|² &nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp; P(1) = |β|²</div>
+            <div class="game-callout">
+              <strong>Game Mechanics:</strong> Each sector provides a strategic measurement budget. Measuring collapses probabilistic barriers permanently into definite open or closed states.
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <script>
+    import { quantumClient } from '../lib/api/quantumClient';
+
+    document.addEventListener('DOMContentLoaded', () => {
+      // Demo H Gate
+      let hActive = false;
+      const btnDemoH = document.getElementById('btnDemoH');
+      const demoHState = document.getElementById('demoHState');
+
+      btnDemoH?.addEventListener('click', async () => {
+        hActive = !hActive;
+        const gates = hActive ? [{ gate: 'H', target: 0 }] : [];
+        try {
+          const res = await quantumClient.executeArbitraryCircuit(1, gates);
+          if (demoHState) demoHState.textContent = res.state_info.dirac_notation;
+          btnDemoH.textContent = hActive ? 'Reset |0⟩ ↺' : 'Apply H Gate ⚡';
+        } catch (e) {
+          console.error(e);
+        }
+      });
+
+      // Demo X Gate
+      let xActive = false;
+      const btnDemoX = document.getElementById('btnDemoX');
+      const demoXState = document.getElementById('demoXState');
+
+      btnDemoX?.addEventListener('click', async () => {
+        xActive = !xActive;
+        const gates = xActive ? [{ gate: 'X', target: 0 }] : [];
+        try {
+          const res = await quantumClient.executeArbitraryCircuit(1, gates);
+          if (demoXState) demoXState.textContent = res.state_info.dirac_notation;
+          btnDemoX.textContent = xActive ? 'Reset |0⟩ ↺' : 'Apply X Gate ⚡';
+        } catch (e) {
+          console.error(e);
+        }
+      });
+
+      // Demo Bell State
+      let bellActive = false;
+      const btnDemoBell = document.getElementById('btnDemoBell');
+      const demoBellState = document.getElementById('demoBellState');
+
+      btnDemoBell?.addEventListener('click', async () => {
+        bellActive = !bellActive;
+        const gates = bellActive
+          ? [
+              { gate: 'H', target: 0 },
+              { gate: 'CNOT', target: 1, control: 0 },
+            ]
+          : [];
+        try {
+          const res = await quantumClient.executeArbitraryCircuit(2, gates);
+          if (demoBellState) demoBellState.textContent = res.state_info.dirac_notation;
+          btnDemoBell.textContent = bellActive ? 'Reset |00⟩ ↺' : 'Create Bell Pair ⚡';
+        } catch (e) {
+          console.error(e);
+        }
+      });
+    });
+  </script>
+
+  <style>
+    .tutorial-container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+
+    .tutorial-header {
+      text-align: center;
+      margin-bottom: 36px;
+    }
+
+    .modules-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .module-card {
+      padding: 24px;
+    }
+
+    .module-number {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--quantum-cyan);
+      letter-spacing: 0.1em;
+      margin-bottom: 6px;
+    }
+
+    .module-title {
+      font-size: 20px;
+      color: #ffffff;
+      margin-bottom: 14px;
+    }
+
+    .module-text {
+      font-size: 14px;
+      line-height: 1.6;
+      color: #cbd5e1;
+    }
+
+    .game-callout {
+      background: rgba(0, 240, 255, 0.06);
+      border-left: 3px solid var(--quantum-cyan);
+      padding: 10px 14px;
+      border-radius: 0 6px 6px 0;
+      margin-top: 12px;
+      font-size: 13px;
+      color: #e0f2fe;
+    }
+
+    .interactive-widget {
+      margin-top: 16px;
+      background: rgba(0, 0, 0, 0.35);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      padding: 14px;
+    }
+
+    .widget-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--quantum-cyan);
+    }
+  </style>
+</body>
+</html>

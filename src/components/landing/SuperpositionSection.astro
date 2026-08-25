@@ -1,0 +1,259 @@
+---
+// SuperpositionSection.astro - Section 04: Quantum Superposition Visual & Mathematical Deep Dive
+---
+
+<section class="landing-section superposition-section" id="sectionSuperposition">
+  <div class="section-header-block" id="superpositionTitle">
+    <div class="section-tag">
+      <span class="tag-number">03</span>
+      <span class="tag-label">QUANTUM PRINCIPLE</span>
+    </div>
+    <h2 class="section-main-heading">
+      SUPERPOSITION
+    </h2>
+    <p class="section-sub-heading">
+      "Before measurement, multiple possibilities coexist simultaneously."
+    </p>
+  </div>
+
+  <div class="superposition-display-card glass-panel" id="superpositionFormula">
+    <!-- Dirac Mathematical Expression -->
+    <div class="dirac-expression-box">
+      <div class="state-transform-row">
+        <span class="dirac-state basis-zero">|0⟩</span>
+        <span class="transform-arrow">──[ H ]──▶</span>
+        <span class="dirac-state superposition-state">
+          <span class="frac">
+            <span class="frac-num">|0⟩ + |1⟩</span>
+            <span class="frac-denom">√2</span>
+          </span>
+        </span>
+      </div>
+      <div class="state-meta-caption">
+        Hadamard transformation maps pure basis state into an equal amplitude quantum superposition.
+      </div>
+    </div>
+
+    <!-- Probability Density Visualization Bars -->
+    <div class="probability-meters-grid">
+      <div class="prob-meter-box">
+        <div class="prob-meter-header">
+          <span class="meter-state">STATE |0⟩</span>
+          <span class="meter-value" id="valState0">50.0%</span>
+        </div>
+        <div class="meter-track">
+          <div class="meter-fill fill-cyan" id="probBar0" style="width: 50%;"></div>
+        </div>
+        <div class="meter-sub">Phase Angle: 0.00 rad (0°)</div>
+      </div>
+
+      <div class="prob-meter-box">
+        <div class="prob-meter-header">
+          <span class="meter-state">STATE |1⟩</span>
+          <span class="meter-value" id="valState1">50.0%</span>
+        </div>
+        <div class="meter-track">
+          <div class="meter-fill fill-emerald" id="probBar1" style="width: 50%;"></div>
+        </div>
+        <div class="meter-sub">Phase Angle: 0.00 rad (0°)</div>
+      </div>
+    </div>
+
+    <!-- Technical Analysis Footnote -->
+    <div class="superposition-analysis-grid">
+      <div class="analysis-item">
+        <span class="analysis-icon">Ψ</span>
+        <div>
+          <h4 class="analysis-title">Coexisting State Amplitudes</h4>
+          <p class="analysis-desc">
+            The quantum system exists as a complex linear combination of basis states α|0⟩ + β|1⟩ where |α|² + |β|² = 1.
+          </p>
+        </div>
+      </div>
+
+      <div class="analysis-item">
+        <span class="analysis-icon">⚡</span>
+        <div>
+          <h4 class="analysis-title">Game Mechanic Integration</h4>
+          <p class="analysis-desc">
+            Superposition creates uncertain containment barriers and exit portals. Navigating shifting sectors continuous feeds phase rotations into the circuit.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .superposition-section {
+    position: relative;
+    padding: 120px 24px;
+    max-width: 1040px;
+    margin: 0 auto;
+    z-index: 10;
+  }
+
+  .superposition-display-card {
+    padding: 40px;
+    border: 1px solid var(--border-subtle);
+    box-shadow: 0 0 40px rgba(0, 0, 0, 0.5);
+  }
+
+  .dirac-expression-box {
+    text-align: center;
+    padding-bottom: 32px;
+    margin-bottom: 32px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  }
+
+  .state-transform-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    font-family: var(--font-mono);
+    font-size: clamp(24px, 4vw, 38px);
+    font-weight: 700;
+    margin-bottom: 14px;
+  }
+
+  .basis-zero {
+    color: var(--quantum-cyan);
+    text-shadow: 0 0 20px rgba(0, 240, 255, 0.4);
+  }
+
+  .transform-arrow {
+    color: #64748b;
+    font-size: 0.7em;
+  }
+
+  .superposition-state {
+    color: var(--quantum-emerald);
+    text-shadow: 0 0 20px rgba(0, 245, 155, 0.4);
+  }
+
+  .frac {
+    display: inline-flex;
+    flex-direction: column;
+    vertical-align: middle;
+    text-align: center;
+    font-size: 0.8em;
+  }
+
+  .frac-num {
+    border-bottom: 2px solid currentColor;
+    padding: 0 4px;
+  }
+
+  .frac-denom {
+    padding: 0 4px;
+  }
+
+  .state-meta-caption {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    color: #94a3b8;
+  }
+
+  .probability-meters-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 24px;
+    margin-bottom: 36px;
+  }
+
+  .prob-meter-box {
+    background: rgba(10, 16, 26, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 8px;
+    padding: 20px;
+  }
+
+  .prob-meter-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 10px;
+  }
+
+  .meter-state {
+    color: #f1f5f9;
+  }
+
+  .meter-value {
+    color: var(--quantum-cyan);
+  }
+
+  .meter-track {
+    height: 8px;
+    background: rgba(0, 0, 0, 0.5);
+    border-radius: 9999px;
+    overflow: hidden;
+    margin-bottom: 8px;
+  }
+
+  .meter-fill {
+    height: 100%;
+    border-radius: 9999px;
+    transition: width 0.4s ease;
+  }
+
+  .fill-cyan {
+    background: linear-gradient(90deg, #00f0ff, #38bdf8);
+    box-shadow: 0 0 10px rgba(0, 240, 255, 0.6);
+  }
+
+  .fill-emerald {
+    background: linear-gradient(90deg, #00f59b, #34d399);
+    box-shadow: 0 0 10px rgba(0, 245, 155, 0.6);
+  }
+
+  .meter-sub {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: #64748b;
+  }
+
+  .superposition-analysis-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 24px;
+    padding-top: 24px;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+  }
+
+  .analysis-item {
+    display: flex;
+    gap: 16px;
+  }
+
+  .analysis-icon {
+    font-family: var(--font-mono);
+    font-size: 24px;
+    font-weight: 800;
+    color: var(--quantum-cyan);
+  }
+
+  .analysis-title {
+    font-family: var(--font-display);
+    font-size: 15px;
+    font-weight: 700;
+    color: #f1f5f9;
+    margin-bottom: 6px;
+  }
+
+  .analysis-desc {
+    font-size: 13px;
+    line-height: 1.5;
+    color: #94a3b8;
+  }
+
+  @media (max-width: 768px) {
+    .superposition-display-card {
+      padding: 24px 16px;
+    }
+  }
+</style>

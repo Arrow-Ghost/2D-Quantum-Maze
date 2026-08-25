@@ -1,0 +1,170 @@
+/* Quantum HUD Component Styles */
+
+.quantum-hud-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 24px;
+  background: rgba(10, 15, 22, 0.85);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border-subtle);
+  z-index: 20;
+}
+
+.hud-group {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.hud-item {
+  display: flex;
+  flex-direction: column;
+}
+
+.hud-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.hud-value {
+  font-family: var(--font-mono);
+  font-size: 16px;
+  font-weight: 700;
+  color: #f8fafc;
+}
+
+/* Energy Bar */
+.energy-bar-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 180px;
+}
+
+.energy-track {
+  flex: 1;
+  height: 12px;
+  background: #0d1520;
+  border-radius: 6px;
+  border: 1px solid rgba(0, 245, 155, 0.2);
+  overflow: hidden;
+}
+
+.energy-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #00f0ff, #00f59b);
+  border-radius: 6px;
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 0 10px rgba(0, 245, 155, 0.5);
+}
+
+.energy-fill.low {
+  background: linear-gradient(90deg, #ffb703, #ff3366);
+  box-shadow: 0 0 10px rgba(255, 51, 102, 0.5);
+}
+
+/* Bottom Controls / Action Bar */
+.quantum-hud-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 24px;
+  background: rgba(10, 15, 22, 0.85);
+  backdrop-filter: blur(12px);
+  border-top: 1px solid var(--border-subtle);
+  z-index: 20;
+}
+
+.gate-inventory {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.gate-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  background: rgba(15, 23, 34, 0.9);
+  border: 1px solid rgba(0, 240, 255, 0.3);
+  border-radius: 8px;
+  color: #ffffff;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.gate-btn:hover:not(:disabled) {
+  border-color: var(--quantum-cyan);
+  background: rgba(0, 240, 255, 0.15);
+  box-shadow: 0 0 14px rgba(0, 240, 255, 0.4);
+  transform: translateY(-2px);
+}
+
+.gate-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.gate-glyph {
+  font-family: var(--font-mono);
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--quantum-cyan);
+}
+
+.gate-cost {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: #94a3b8;
+}
+
+/* Measurement Counter */
+.meas-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  background: rgba(123, 44, 191, 0.15);
+  border: 1px solid rgba(199, 125, 255, 0.4);
+  border-radius: 8px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: #e0aaff;
+}
+
+/* Modals & Overlays */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(5, 8, 12, 0.85);
+  backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.2s ease;
+}
+
+.modal-card {
+  width: 90%;
+  max-width: 520px;
+  padding: 28px;
+  background: rgba(13, 20, 30, 0.95);
+  border: 1px solid var(--border-active);
+  box-shadow: 0 0 40px rgba(0, 240, 255, 0.2);
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}

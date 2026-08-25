@@ -1,0 +1,297 @@
+---
+// HeroSection.astro - First Viewport Quantum Experience Entry
+---
+
+<section class="landing-section hero-section" id="sectionHero">
+  <div class="hero-inner-container" id="heroMainContent">
+    <!-- Top System Telemetry -->
+    <div class="hero-telemetry-badge">
+      <span class="telemetry-pulse"></span>
+      <span class="telemetry-label">QUANTUM COMPUTING EXPERIMENT / 001</span>
+      <span class="telemetry-sep">|</span>
+      <span class="telemetry-coord">LOC: SECTOR_01</span>
+    </div>
+
+    <!-- Main Display Title -->
+    <h1 class="hero-main-title">
+      <span class="title-word">QUANTUM</span>
+      <span class="title-word title-accent">MAZE</span>
+    </h1>
+
+    <!-- Core Tagline -->
+    <p class="hero-tagline">
+      REALITY IS A STATE.
+    </p>
+
+    <!-- Narrative Description -->
+    <p class="hero-lead-text">
+      Navigate an experimental containment maze whose topology changes after every movement.
+      Manipulate real Qiskit quantum circuits, evolve phase parameters, and control probabilistic wavefunction collapse to escape.
+    </p>
+
+    <!-- Call to Actions -->
+    <div class="hero-cta-actions">
+      <a href="/game?level=level-01" class="btn-quantum hero-btn-experiment" id="btnHeroStart">
+        <span class="btn-icon">⚡</span>
+        <span class="btn-text">START EXPERIMENT</span>
+        <span class="btn-corner-tr"></span>
+        <span class="btn-corner-bl"></span>
+      </a>
+
+      <a href="/lab" class="btn-quantum-secondary hero-btn-lab">
+        <span class="btn-icon">⚗</span>
+        <span class="btn-text">QUANTUM LAB</span>
+      </a>
+
+      <a href="/levels" class="btn-quantum-secondary hero-btn-sectors">
+        <span class="btn-icon">◈</span>
+        <span class="btn-text">SECTOR MATRIX</span>
+      </a>
+    </div>
+
+    <!-- Telemetry Status Bar -->
+    <div class="hero-telemetry-bar">
+      <div class="telemetry-item">
+        <span class="telemetry-key">TOPOLOGY:</span>
+        <span class="telemetry-val" style="color: var(--quantum-emerald);">DYNAMIC RECONFIGURATION</span>
+      </div>
+      <div class="telemetry-item">
+        <span class="telemetry-key">ENGINE:</span>
+        <span class="telemetry-val" style="color: var(--quantum-cyan);">QISKIT QUANTUM BACKEND</span>
+      </div>
+      <div class="telemetry-item">
+        <span class="telemetry-key">EXIT ANCHOR:</span>
+        <span class="telemetry-val" style="color: var(--quantum-amber);">PROBABILISTIC (>= 70%)</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scroll Down Indicator -->
+  <div class="scroll-cue-container">
+    <span class="scroll-cue-text">SCROLL TO ENTER EXPERIMENT</span>
+    <div class="scroll-cue-line">
+      <div class="scroll-cue-dot"></div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .hero-section {
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 100px 24px 60px;
+    z-index: 10;
+    text-align: center;
+  }
+
+  .hero-inner-container {
+    max-width: 980px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .hero-telemetry-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 16px;
+    background: rgba(0, 240, 255, 0.08);
+    border: 1px solid rgba(0, 240, 255, 0.25);
+    border-radius: 9999px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    color: var(--quantum-cyan);
+    margin-bottom: 28px;
+    backdrop-filter: blur(8px);
+  }
+
+  .telemetry-pulse {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--quantum-cyan);
+    box-shadow: 0 0 10px var(--quantum-cyan);
+    animation: quantumPulse 2s infinite ease-in-out;
+  }
+
+  .telemetry-sep {
+    opacity: 0.4;
+  }
+
+  .telemetry-coord {
+    color: #94a3b8;
+  }
+
+  .hero-main-title {
+    font-family: var(--font-display);
+    font-size: clamp(52px, 8vw, 108px);
+    font-weight: 900;
+    line-height: 0.95;
+    letter-spacing: 0.04em;
+    margin-bottom: 16px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 16px;
+  }
+
+  .title-word {
+    background: linear-gradient(180deg, #ffffff 40%, #94a3b8 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .title-accent {
+    background: linear-gradient(135deg, #00f0ff 0%, #a5f3fc 60%, #00f59b 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 0 40px rgba(0, 240, 255, 0.3);
+  }
+
+  .hero-tagline {
+    font-family: var(--font-mono);
+    font-size: clamp(14px, 2vw, 20px);
+    font-weight: 700;
+    letter-spacing: 0.32em;
+    color: var(--quantum-cyan);
+    margin-bottom: 24px;
+    text-transform: uppercase;
+  }
+
+  .hero-lead-text {
+    max-width: 720px;
+    font-size: clamp(15px, 1.2vw, 18px);
+    line-height: 1.65;
+    color: #94a3b8;
+    margin-bottom: 40px;
+  }
+
+  .hero-cta-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    margin-bottom: 48px;
+  }
+
+  .hero-btn-experiment {
+    position: relative;
+    padding: 16px 36px;
+    font-size: 15px;
+    letter-spacing: 0.1em;
+    box-shadow: 0 0 25px rgba(0, 240, 255, 0.35);
+  }
+
+  .hero-btn-lab, .hero-btn-sectors {
+    padding: 15px 26px;
+    font-size: 13px;
+  }
+
+  .btn-corner-tr {
+    position: absolute;
+    top: -2px;
+    right: -2px;
+    width: 6px;
+    height: 6px;
+    border-top: 2px solid #ffffff;
+    border-right: 2px solid #ffffff;
+  }
+
+  .btn-corner-bl {
+    position: absolute;
+    bottom: -2px;
+    left: -2px;
+    width: 6px;
+    height: 6px;
+    border-bottom: 2px solid #ffffff;
+    border-left: 2px solid #ffffff;
+  }
+
+  .hero-telemetry-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 24px;
+    padding: 12px 24px;
+    background: rgba(10, 16, 26, 0.7);
+    border: 1px solid var(--border-subtle);
+    border-radius: 8px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.08em;
+  }
+
+  .telemetry-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .telemetry-key {
+    color: #64748b;
+  }
+
+  .telemetry-val {
+    font-weight: 600;
+  }
+
+  .scroll-cue-container {
+    position: absolute;
+    bottom: 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    opacity: 0.75;
+  }
+
+  .scroll-cue-text {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: #64748b;
+  }
+
+  .scroll-cue-line {
+    width: 1px;
+    height: 32px;
+    background: linear-gradient(180deg, var(--quantum-cyan), transparent);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .scroll-cue-dot {
+    width: 3px;
+    height: 6px;
+    background: #00f0ff;
+    position: absolute;
+    left: -1px;
+    animation: scrollDot 2s infinite ease-in-out;
+  }
+
+  @keyframes scrollDot {
+    0% { top: -6px; opacity: 0; }
+    40% { opacity: 1; }
+    100% { top: 32px; opacity: 0; }
+  }
+
+  @media (max-width: 768px) {
+    .hero-section {
+      padding: 80px 16px 40px;
+    }
+    .hero-telemetry-bar {
+      flex-direction: column;
+      gap: 8px;
+      align-items: flex-start;
+    }
+  }
+</style>

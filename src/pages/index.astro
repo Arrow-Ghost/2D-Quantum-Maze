@@ -1,0 +1,92 @@
+---
+// Quantum Maze - Master Cinematic Landing Page
+import LandingNav from '../components/landing/LandingNav.astro';
+import HeroSection from '../components/landing/HeroSection.astro';
+import MazeStorySection from '../components/landing/MazeStorySection.astro';
+import SuperpositionSection from '../components/landing/SuperpositionSection.astro';
+import QuantumGatesSection from '../components/landing/QuantumGatesSection.astro';
+import MeasurementSection from '../components/landing/MeasurementSection.astro';
+import GameLoopSection from '../components/landing/GameLoopSection.astro';
+import ExitProbabilitySection from '../components/landing/ExitProbabilitySection.astro';
+import FinalCTASection from '../components/landing/FinalCTASection.astro';
+import ScientificCursor from '../components/landing/ScientificCursor.astro';
+
+import '../styles/global.css';
+import '../styles/landing.css';
+import '../styles/animations.css';
+---
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QUANTUM MAZE | Reality is a State</title>
+  <meta name="description" content="A 2D quantum-computing experiment where the maze topology changes after every movement and the player interacts with an evolving Qiskit quantum circuit to escape.">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+</head>
+<body class="landing-master-viewport">
+  <!-- Minimal Sticky Laboratory Navigation -->
+  <LandingNav />
+
+  <!-- Fixed WebGL Quantum Experience Canvas -->
+  <canvas id="quantumMasterCanvas" class="webgl-canvas-fixed"></canvas>
+
+  <!-- Atmospheric Overlay & Scanlines -->
+  <div class="landing-atmosphere-overlay"></div>
+  <div class="landing-scanlines"></div>
+
+  <!-- Continuous Cinematic Scroll Narrative Container -->
+  <main class="landing-story-flow" id="landingStoryContainer">
+    <!-- SECTION 01: Hero / Quantum Probability Field -->
+    <HeroSection />
+
+    <!-- SECTION 02 & 03: What is Quantum Maze & Dynamic Topology Reconfiguration -->
+    <MazeStorySection />
+
+    <!-- SECTION 04: Superposition & Coexisting Amplitudes -->
+    <SuperpositionSection />
+
+    <!-- SECTION 05 - 09: Quantum Gate Operators (H, X, Z, CNOT) -->
+    <QuantumGatesSection />
+
+    <!-- SECTION 10: Measurement & Wavefunction Collapse -->
+    <MeasurementSection />
+
+    <!-- SECTION 11: The Complete Coupled Gameplay Loop -->
+    <GameLoopSection />
+
+    <!-- SECTION 12: Probabilistic Exit Vortex & Dual Win Condition -->
+    <ExitProbabilitySection />
+
+    <!-- SECTION 13: Final Laboratory Portals & Navigation Hub -->
+    <FinalCTASection />
+  </main>
+
+  <!-- Minimal Scientific Reticle Cursor -->
+  <ScientificCursor />
+
+  <!-- WebGL & GSAP Scroll Orchestration Script -->
+  <script>
+    import { QuantumMasterScene } from '../lib/webgl/QuantumMasterScene';
+    import { initLandingScroll } from '../lib/animations/landingScroll';
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const canvas = document.getElementById('quantumMasterCanvas') as HTMLCanvasElement;
+      if (!canvas) return;
+
+      // 1. Initialize Single Master WebGL Scene
+      const scene = new QuantumMasterScene({ canvas });
+
+      // 2. Initialize GSAP ScrollTrigger timeline controller
+      const cleanupScroll = initLandingScroll(scene);
+
+      // 3. Clean up on page unload / navigation
+      window.addEventListener('beforeunload', () => {
+        cleanupScroll();
+        scene.dispose();
+      });
+    });
+  </script>
+</body>
+</html>

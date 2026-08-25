@@ -1,0 +1,22 @@
+{
+  "name": "quantum-maze",
+  "type": "module",
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "astro dev --port 4321",
+    "start": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "@types/three": "^0.185.4",
+    "astro": "^5.0.0",
+    "gsap": "^3.15.0",
+    "three": "^0.185.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.6.0"
+  }
+}

@@ -1,0 +1,350 @@
+---
+import Navbar from '../components/Navbar.astro';
+import '../styles/global.css';
+import '../styles/animations.css';
+---
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SETTINGS | Quantum Maze</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+</head>
+<body>
+  <Navbar activePage="settings" />
+
+  <main class="settings-container">
+    <div class="settings-header">
+      <span class="quantum-badge badge-cyan" style="margin-bottom: 8px;">CONFIGURATION</span>
+      <h1 style="font-size: 32px; color: #ffffff;">SYSTEM SETTINGS</h1>
+      <p style="color: #94a3b8; font-size: 14px; max-width: 600px; margin: 0 auto;">
+        Adjust audio telemetry, visual accessibility filters, and simulation difficulty parameters.
+      </p>
+    </div>
+
+    <div class="glass-panel settings-card">
+      <!-- Audio Settings -->
+      <section class="settings-section">
+        <h3 class="section-title">Audio & Acoustic Telemetry</h3>
+        
+        <div class="setting-row">
+          <div>
+            <label class="setting-label">Master Volume</label>
+            <p class="setting-desc">Primary synthesizer output level</p>
+          </div>
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <input type="range" id="sliderMasterVol" min="0" max="100" value="80" class="quantum-slider" />
+            <span id="labelMasterVol" class="slider-val">80%</span>
+          </div>
+        </div>
+
+        <div class="setting-row">
+          <div>
+            <label class="setting-label">Sound Effects (SFX)</label>
+            <p class="setting-desc">Quantum gates, measurement collapse, and barrier sounds</p>
+          </div>
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <input type="range" id="sliderSfxVol" min="0" max="100" value="80" class="quantum-slider" />
+            <span id="labelSfxVol" class="slider-val">80%</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Visual & Accessibility -->
+      <section class="settings-section">
+        <h3 class="section-title">Visual & Accessibility</h3>
+
+        <div class="setting-row">
+          <div>
+            <label class="setting-label">Reduced Motion</label>
+            <p class="setting-desc">Minimizes screen shaking and particle oscillations</p>
+          </div>
+          <input type="checkbox" id="checkReducedMotion" class="quantum-toggle" />
+        </div>
+
+        <div class="setting-row">
+          <div>
+            <label class="setting-label">High Contrast Mode</label>
+            <p class="setting-desc">Enhances barrier borders and door probability text</p>
+          </div>
+          <input type="checkbox" id="checkHighContrast" class="quantum-toggle" />
+        </div>
+
+        <div class="setting-row">
+          <div>
+            <label class="setting-label">Show Dirac Notation</label>
+            <p class="setting-desc">Displays mathematical ket statevectors |ψ⟩</p>
+          </div>
+          <input type="checkbox" id="checkDiracNotation" class="quantum-toggle" checked />
+        </div>
+      </section>
+
+      <!-- Simulation Difficulty & Diagnostics -->
+      <section class="settings-section">
+        <h3 class="section-title">Simulation & Diagnostics</h3>
+
+        <div class="setting-row">
+          <div>
+            <label class="setting-label">Simulation Difficulty</label>
+            <p class="setting-desc">Adjusts initial quantum energy and measurement budgets</p>
+          </div>
+          <select id="selectDifficulty" class="btn-quantum-secondary" style="padding: 6px 12px;">
+            <option value="EASY">EASY (High Energy, +2 Measurements)</option>
+            <option value="NORMAL" selected>NORMAL (Balanced Budget)</option>
+            <option value="EXPERT">EXPERT (Strict Energy, High Multipliers)</option>
+          </select>
+        </div>
+
+        <div class="setting-row">
+          <div>
+            <label class="setting-label">Developer Debug Panel</label>
+            <p class="setting-desc">Enables diagnostic overlay [Press ~ during gameplay]</p>
+          </div>
+          <input type="checkbox" id="checkDebugMode" class="quantum-toggle" />
+        </div>
+      </section>
+
+      <!-- Quantum Backend Server Connection -->
+      <section class="settings-section">
+        <h3 class="section-title">Quantum Backend Engine Connection</h3>
+
+        <div class="setting-row" style="flex-direction: column; align-items: flex-start; gap: 8px;">
+          <div style="width: 100%; display: flex; justify-content: space-between; align-items: center;">
+            <div>
+              <label class="setting-label">FastAPI Qiskit Server URL</label>
+              <p class="setting-desc">Configure Render deployment or local development endpoint</p>
+            </div>
+            <span id="backendStatusIndicator" class="quantum-badge badge-amber">TESTING...</span>
+          </div>
+
+          <div style="width: 100%; display: flex; gap: 10px; margin-top: 6px;">
+            <input
+              type="text"
+              id="inputApiBaseUrl"
+              placeholder="https://your-backend.onrender.com or http://127.0.0.1:8000"
+              class="quantum-text-input"
+            />
+            <button type="button" id="btnTestBackend" class="btn-quantum-secondary" style="white-space: nowrap;">
+              Test Connection
+            </button>
+          </div>
+          <p id="backendTestDetails" style="font-family: var(--font-mono); font-size: 11px; color: #64748b; margin-top: 4px;">
+            Default fallback: http://127.0.0.1:8000 or PUBLIC_API_BASE_URL
+          </p>
+        </div>
+      </section>
+
+      <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px;">
+        <button id="btnResetSettings" class="btn-quantum-secondary">Reset Defaults</button>
+        <button id="btnSaveSettings" class="btn-quantum">Save Preferences ✓</button>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    import { StorageManager } from '../lib/storage/storage';
+    import { audioEngine } from '../lib/audio/audioEngine';
+    import { QuantumClient, getInitialApiBaseUrl } from '../lib/api/quantumClient';
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const sliderMasterVol = document.getElementById('sliderMasterVol') as HTMLInputElement;
+      const labelMasterVol = document.getElementById('labelMasterVol');
+      const sliderSfxVol = document.getElementById('sliderSfxVol') as HTMLInputElement;
+      const labelSfxVol = document.getElementById('labelSfxVol');
+
+      const checkReducedMotion = document.getElementById('checkReducedMotion') as HTMLInputElement;
+      const checkHighContrast = document.getElementById('checkHighContrast') as HTMLInputElement;
+      const checkDiracNotation = document.getElementById('checkDiracNotation') as HTMLInputElement;
+      const selectDifficulty = document.getElementById('selectDifficulty') as HTMLSelectElement;
+      const checkDebugMode = document.getElementById('checkDebugMode') as HTMLInputElement;
+
+      const inputApiBaseUrl = document.getElementById('inputApiBaseUrl') as HTMLInputElement;
+      const btnTestBackend = document.getElementById('btnTestBackend');
+      const backendStatusIndicator = document.getElementById('backendStatusIndicator');
+      const backendTestDetails = document.getElementById('backendTestDetails');
+
+      const btnSaveSettings = document.getElementById('btnSaveSettings');
+      const btnResetSettings = document.getElementById('btnResetSettings');
+
+      // Load initial settings
+      const settings = StorageManager.getSettings();
+      if (sliderMasterVol) sliderMasterVol.value = settings.masterVolume.toString();
+      if (labelMasterVol) labelMasterVol.textContent = `${settings.masterVolume}%`;
+      if (sliderSfxVol) sliderSfxVol.value = settings.sfxVolume.toString();
+      if (labelSfxVol) labelSfxVol.textContent = `${settings.sfxVolume}%`;
+
+      if (checkReducedMotion) checkReducedMotion.checked = settings.reducedMotion;
+      if (checkHighContrast) checkHighContrast.checked = settings.highContrast;
+      if (checkDiracNotation) checkDiracNotation.checked = settings.showDiracNotation;
+      if (selectDifficulty) selectDifficulty.value = settings.difficulty;
+      if (checkDebugMode) checkDebugMode.checked = settings.debugMode;
+
+      const currentApiUrl = getInitialApiBaseUrl();
+      if (inputApiBaseUrl) inputApiBaseUrl.value = currentApiUrl;
+
+      // Test backend connection
+      async function testBackend(urlToTest: string) {
+        if (!backendStatusIndicator || !backendTestDetails) return;
+        backendStatusIndicator.textContent = 'CHECKING...';
+        backendStatusIndicator.className = 'quantum-badge badge-amber';
+        backendTestDetails.textContent = `Pinging ${urlToTest}/health...`;
+
+        try {
+          const testClient = new QuantumClient(urlToTest);
+          const health = await testClient.checkHealth();
+          backendStatusIndicator.textContent = 'ONLINE';
+          backendStatusIndicator.className = 'quantum-badge badge-emerald';
+          backendTestDetails.textContent = `Connected: ${health.engine} (${health.qiskit_version}) — Statevector simulation active`;
+          backendTestDetails.style.color = '#00f59b';
+        } catch (err: any) {
+          backendStatusIndicator.textContent = 'OFFLINE';
+          backendStatusIndicator.className = 'quantum-badge badge-crimson';
+          backendTestDetails.textContent = `Error: ${err.message}`;
+          backendTestDetails.style.color = '#ff3366';
+        }
+      }
+
+      // Automatically run health check on load
+      testBackend(currentApiUrl);
+
+      btnTestBackend?.addEventListener('click', () => {
+        const customUrl = inputApiBaseUrl.value.trim() || 'http://127.0.0.1:8000';
+        testBackend(customUrl);
+      });
+
+      sliderMasterVol?.addEventListener('input', () => {
+        if (labelMasterVol) labelMasterVol.textContent = `${sliderMasterVol.value}%`;
+        audioEngine.setMasterVolume(parseInt(sliderMasterVol.value, 10));
+      });
+
+      sliderSfxVol?.addEventListener('input', () => {
+        if (labelSfxVol) labelSfxVol.textContent = `${sliderSfxVol.value}%`;
+        audioEngine.setSfxVolume(parseInt(sliderSfxVol.value, 10));
+      });
+
+      btnSaveSettings?.addEventListener('click', () => {
+        StorageManager.saveSettings({
+          masterVolume: parseInt(sliderMasterVol.value, 10),
+          sfxVolume: parseInt(sliderSfxVol.value, 10),
+          reducedMotion: checkReducedMotion.checked,
+          highContrast: checkHighContrast.checked,
+          showDiracNotation: checkDiracNotation.checked,
+          difficulty: selectDifficulty.value as any,
+          debugMode: checkDebugMode.checked,
+        });
+
+        const newBackendUrl = inputApiBaseUrl.value.trim();
+        if (newBackendUrl) {
+          localStorage.setItem('quantum_api_base_url', newBackendUrl.replace(/\/+$/, ''));
+        } else {
+          localStorage.removeItem('quantum_api_base_url');
+        }
+
+        alert('Settings and Quantum Backend URL saved successfully!');
+      });
+
+      btnResetSettings?.addEventListener('click', () => {
+        if (confirm('Reset settings to laboratory defaults?')) {
+          localStorage.removeItem('quantum_maze_settings');
+          localStorage.removeItem('quantum_api_base_url');
+          window.location.reload();
+        }
+      });
+    });
+  </script>
+
+  <style>
+    .settings-container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+
+    .settings-header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .settings-card {
+      padding: 28px;
+    }
+
+    .settings-section {
+      margin-bottom: 24px;
+      border-bottom: 1px solid var(--border-subtle);
+      padding-bottom: 20px;
+    }
+
+    .section-title {
+      font-size: 16px;
+      color: var(--quantum-cyan);
+      margin-bottom: 16px;
+      font-family: var(--font-mono);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .setting-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+      gap: 16px;
+    }
+
+    .setting-label {
+      font-weight: 600;
+      color: #f1f5f9;
+      display: block;
+      font-size: 14px;
+    }
+
+    .setting-desc {
+      font-size: 12px;
+      color: #94a3b8;
+      margin-top: 2px;
+    }
+
+    .quantum-slider {
+      accent-color: var(--quantum-cyan);
+      width: 140px;
+      cursor: pointer;
+    }
+
+    .slider-val {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--quantum-cyan);
+      width: 40px;
+      text-align: right;
+    }
+
+    .quantum-toggle {
+      width: 20px;
+      height: 20px;
+      accent-color: var(--quantum-cyan);
+      cursor: pointer;
+    }
+
+    .quantum-text-input {
+      flex: 1;
+      padding: 10px 14px;
+      background: rgba(10, 16, 26, 0.9);
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+      color: #ffffff;
+      font-family: var(--font-mono);
+      font-size: 13px;
+      outline: none;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .quantum-text-input:focus {
+      border-color: var(--quantum-cyan);
+      box-shadow: 0 0 10px rgba(0, 240, 255, 0.3);
+    }
+  </style>
+</body>
+</html>

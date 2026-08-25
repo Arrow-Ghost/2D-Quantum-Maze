@@ -1,0 +1,244 @@
+---
+// MazeStorySection.astro - Section 02 & 03: Dynamic Topology Narrative
+---
+
+<section class="landing-section maze-story-section" id="sectionMazeStory">
+  <div class="section-header-block" id="mazeTitle">
+    <div class="section-tag">
+      <span class="tag-number">02</span>
+      <span class="tag-label">TOPOLOGICAL DYNAMICS</span>
+    </div>
+    <h2 class="section-main-heading">
+      THIS IS NOT A <span class="text-cyan-glow">STATIC MAZE</span>.
+    </h2>
+    <p class="section-sub-heading">
+      Every single valid movement alters the wall topology of the environment. You cannot simply memorize a path.
+    </p>
+  </div>
+
+  <!-- Live Simulation Grid Showcase -->
+  <div class="maze-simulation-container">
+    <div class="maze-sim-hud">
+      <div class="sim-hud-item">
+        <span class="sim-hud-key">SPATIAL GRID:</span>
+        <span class="sim-hud-val">6 ROWS × 17 COLUMNS</span>
+      </div>
+      <div class="sim-hud-item">
+        <span class="sim-hud-key">WALL INVARIANT:</span>
+        <span class="quantum-badge badge-cyan">EXACTLY 42 WALLS</span>
+      </div>
+      <div class="sim-hud-item">
+        <span class="sim-hud-key">ACTIVE STATE:</span>
+        <span class="quantum-badge badge-emerald" id="mazeCounter">MOVE 001</span>
+      </div>
+    </div>
+
+    <!-- 3 Sequence Cards explaining the movement loop -->
+    <div class="maze-sequence-grid">
+      <div class="glass-panel sequence-card" id="mazeCard1">
+        <div class="card-step-badge">STAGE 01</div>
+        <h3 class="card-title">Fixed Spatial Anchors</h3>
+        <p class="card-desc">
+          Grid dimensions (6×17), Player spawn, Exit portal (r2, c15), and Checkpoints never move or rotate. They remain absolute spatial coordinates.
+        </p>
+        <div class="card-metric-footer">
+          <span class="metric-label">EXIT PORTAL:</span>
+          <span class="metric-value" style="color: var(--quantum-amber);">IMMUTABLE (2, 15)</span>
+        </div>
+      </div>
+
+      <div class="glass-panel sequence-card" id="mazeCard2">
+        <div class="card-step-badge">STAGE 02</div>
+        <h3 class="card-title">Dynamic Reconfiguration</h3>
+        <p class="card-desc">
+          Upon every valid movement, walls disintegrate into quantum streamlines and re-materialize in 200–400ms into a 100% BFS-solvable labyrinth.
+        </p>
+        <div class="card-metric-footer">
+          <span class="metric-label">SOLVABILITY:</span>
+          <span class="metric-value" style="color: var(--quantum-emerald);">BFS VERIFIED 100%</span>
+        </div>
+      </div>
+
+      <div class="glass-panel sequence-card" id="mazeCard3">
+        <div class="card-step-badge">STAGE 03</div>
+        <h3 class="card-title">Quantum State Coupling</h3>
+        <p class="card-desc">
+          Physical movement coordinates rotate the Qiskit quantum statevector. The exit portal evolves its probability amplitude continuously.
+        </p>
+        <div class="card-metric-footer">
+          <span class="metric-label">EXIT PROBABILITY:</span>
+          <span class="metric-value" style="color: var(--quantum-cyan);">52.4% → 71.8% → 89.2%</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .maze-story-section {
+    position: relative;
+    padding: 120px 24px;
+    max-width: 1100px;
+    margin: 0 auto;
+    z-index: 10;
+  }
+
+  .section-header-block {
+    text-align: center;
+    margin-bottom: 64px;
+  }
+
+  .section-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.16em;
+    color: var(--quantum-cyan);
+    margin-bottom: 16px;
+  }
+
+  .tag-number {
+    display: inline-block;
+    padding: 2px 8px;
+    background: rgba(0, 240, 255, 0.15);
+    border: 1px solid var(--quantum-cyan);
+    border-radius: 4px;
+    font-weight: 700;
+  }
+
+  .section-main-heading {
+    font-family: var(--font-display);
+    font-size: clamp(34px, 5vw, 56px);
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: 0.03em;
+    color: #f8fafc;
+    margin-bottom: 18px;
+  }
+
+  .text-cyan-glow {
+    color: var(--quantum-cyan);
+    text-shadow: 0 0 30px rgba(0, 240, 255, 0.4);
+  }
+
+  .section-sub-heading {
+    max-width: 640px;
+    margin: 0 auto;
+    font-size: 16px;
+    line-height: 1.6;
+    color: #94a3b8;
+  }
+
+  .maze-simulation-container {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .maze-sim-hud {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 14px 24px;
+    background: rgba(10, 16, 26, 0.85);
+    border: 1px solid var(--border-subtle);
+    border-radius: 8px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: 0.08em;
+  }
+
+  .sim-hud-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .sim-hud-key {
+    color: #64748b;
+  }
+
+  .sim-hud-val {
+    color: #f1f5f9;
+    font-weight: 600;
+  }
+
+  .maze-sequence-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+  }
+
+  .sequence-card {
+    position: relative;
+    padding: 28px 24px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 220px;
+    border: 1px solid var(--border-subtle);
+    transition: all 0.3s ease;
+  }
+
+  .sequence-card:hover {
+    border-color: rgba(0, 240, 255, 0.4);
+    box-shadow: 0 0 25px rgba(0, 240, 255, 0.1);
+  }
+
+  .card-step-badge {
+    display: inline-block;
+    width: fit-content;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    color: var(--quantum-cyan);
+    background: rgba(0, 240, 255, 0.1);
+    padding: 3px 8px;
+    border-radius: 4px;
+    margin-bottom: 14px;
+  }
+
+  .card-title {
+    font-family: var(--font-display);
+    font-size: 18px;
+    font-weight: 700;
+    color: #f1f5f9;
+    margin-bottom: 10px;
+  }
+
+  .card-desc {
+    font-size: 14px;
+    line-height: 1.55;
+    color: #94a3b8;
+    margin-bottom: 20px;
+  }
+
+  .card-metric-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 14px;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    font-family: var(--font-mono);
+    font-size: 11px;
+  }
+
+  .metric-label {
+    color: #64748b;
+  }
+
+  .metric-value {
+    font-weight: 700;
+  }
+
+  @media (max-width: 768px) {
+    .maze-story-section {
+      padding: 80px 16px;
+    }
+  }
+</style>

@@ -1,0 +1,22 @@
+---
+// FailureModal Component
+---
+
+<div id="failureModal" class="modal-overlay" style="display: none;">
+  <div class="modal-card" style="max-width: 440px; text-align: center;">
+    <span class="quantum-badge badge-crimson" style="align-self: center; margin-bottom: 8px;">QUANTUM PATH COLLAPSED</span>
+    <h2 style="font-size: 24px; color: #ffffff; letter-spacing: 0.04em;">SIMULATION TERMINATED</h2>
+    <p id="failureReasonText" style="font-family: var(--font-mono); font-size: 13px; color: #f87171; background: rgba(255,51,102,0.1); padding: 12px; border-radius: 8px; border: 1px solid rgba(255,51,102,0.3); margin: 12px 0;">
+      Quantum statevector decoherence or path obstruction.
+    </p>
+
+    <div style="display: flex; gap: 10px; margin-top: 8px;">
+      <button id="btnRetryLevel" class="btn-quantum" style="flex: 1;">
+        Retry Sector ↺
+      </button>
+      <a href="/levels" class="btn-quantum-secondary" style="flex: 1; text-align: center;">
+        Sector Select
+      </a>
+    </div>
+  </div>
+</div>

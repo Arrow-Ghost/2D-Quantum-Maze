@@ -1,0 +1,61 @@
+---
+// InteractionModal Component - In-game quantum gate operator terminal
+---
+
+<div id="interactionModal" class="modal-overlay" style="display: none;">
+  <div class="modal-card">
+    <div class="panel-header" style="margin-bottom: 0;">
+      <span class="panel-title" id="interactModalTitle">Quantum Terminal Interaction</span>
+      <button id="btnCloseInteractModal" class="btn-quantum-secondary" style="padding: 2px 8px;">✕</button>
+    </div>
+
+    <p id="interactModalSubtitle" style="font-size: 13px; color: #94a3b8;">
+      Select a quantum operation to apply to the active circuit via Qiskit.
+    </p>
+
+    <!-- Qubit Selectors -->
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+      <div>
+        <label class="hud-label">Target Qubit:</label>
+        <select id="selectTargetQubit" class="btn-quantum-secondary" style="width: 100%; margin-top: 4px; padding: 8px;">
+          <option value="0">q0</option>
+        </select>
+      </div>
+      <div id="controlQubitGroup" style="display: none;">
+        <label class="hud-label">Control Qubit (CNOT):</label>
+        <select id="selectControlQubit" class="btn-quantum-secondary" style="width: 100%; margin-top: 4px; padding: 8px;">
+          <option value="0">q0</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Available Gate Buttons -->
+    <div>
+      <label class="hud-label" style="margin-bottom: 8px; display: block;">Available Quantum Operations:</label>
+      <div class="gate-inventory" id="modalGateGrid" style="display: flex; gap: 10px; flex-wrap: wrap;">
+        <!-- Gate buttons populated based on level allowedGates -->
+      </div>
+    </div>
+
+    <!-- Selected Gate Description & Energy Cost -->
+    <div style="background: rgba(0,0,0,0.3); border: 1px solid var(--border-subtle); border-radius: 8px; padding: 12px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+        <span id="selectedGateName" style="font-family: var(--font-mono); font-weight: 700; color: var(--quantum-cyan);">
+          Hadamard Gate (H)
+        </span>
+        <span id="selectedGateCost" class="quantum-badge badge-cyan">10 QE</span>
+      </div>
+      <p id="selectedGateDesc" style="font-size: 12px; color: #cbd5e1;">
+        Creates an equal superposition (|0⟩+|1⟩)/√2.
+      </p>
+    </div>
+
+    <!-- Action Buttons -->
+    <div style="display: flex; gap: 12px; justify-content: flex-end; margin-top: 8px;">
+      <button id="btnCancelInteract" class="btn-quantum-secondary">Cancel</button>
+      <button id="btnExecuteGate" class="btn-quantum">
+        Execute Operation ⚡
+      </button>
+    </div>
+  </div>
+</div>

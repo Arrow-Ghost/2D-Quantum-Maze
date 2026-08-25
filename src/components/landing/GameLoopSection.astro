@@ -1,0 +1,199 @@
+---
+// GameLoopSection.astro - Section 11: The Complete Quantum Gameplay Loop
+---
+
+<section class="landing-section gameloop-section" id="sectionGameLoop">
+  <div class="section-header-block">
+    <div class="section-tag">
+      <span class="tag-number">06</span>
+      <span class="tag-label">SYSTEM ARCHITECTURE</span>
+    </div>
+    <h2 class="section-main-heading">
+      THE <span class="text-cyan-glow">EXPERIMENT</span>.
+    </h2>
+    <p class="section-sub-heading">
+      A continuous coupled loop between physical 2D navigation and Qiskit quantum statevector evolution.
+    </p>
+  </div>
+
+  <!-- Vertical Animated Quantum Pipeline -->
+  <div class="pipeline-container glass-panel">
+    <div class="pipeline-flow-track">
+      <svg class="pipeline-svg-line" viewBox="0 0 4 600" preserveAspectRatio="none">
+        <line x1="2" y1="0" x2="2" y2="600" id="circuitPathLine" stroke="url(#cyanLineGrad)" stroke-width="2" stroke-dasharray="1000" stroke-dashoffset="0" />
+        <defs>
+          <linearGradient id="cyanLineGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#00f0ff" />
+            <stop offset="50%" stop-color="#00f59b" />
+            <stop offset="100%" stop-color="#c77dff" />
+          </linearGradient>
+        </defs>
+      </svg>
+
+      <!-- 8-Stage Steps -->
+      <div class="pipeline-steps-list">
+        <div class="pipeline-step-item circuit-step-badge">
+          <span class="step-num">01</span>
+          <div class="step-content">
+            <h4 class="step-name">VALID MOVEMENT</h4>
+            <p class="step-desc">Player inputs step into an unblocked adjacent tile.</p>
+          </div>
+        </div>
+
+        <div class="pipeline-step-item circuit-step-badge">
+          <span class="step-num">02</span>
+          <div class="step-content">
+            <h4 class="step-name">TOPOLOGY DISSOLVES</h4>
+            <p class="step-desc">Exact 42 walls randomize while preserving spatial anchors and BFS solvability.</p>
+          </div>
+        </div>
+
+        <div class="pipeline-step-item circuit-step-badge">
+          <span class="step-num">03</span>
+          <div class="step-content">
+            <h4 class="step-name">CIRCUIT ROTATION</h4>
+            <p class="step-desc">Physical coordinates rotate unitary RY(θ) parameters in Qiskit.</p>
+          </div>
+        </div>
+
+        <div class="pipeline-step-item circuit-step-badge">
+          <span class="step-num">04</span>
+          <div class="step-content">
+            <h4 class="step-name">CHECKPOINT SECURED</h4>
+            <p class="step-desc">Player reaches checkpoint beacon, unlocking operator terminals.</p>
+          </div>
+        </div>
+
+        <div class="pipeline-step-item circuit-step-badge">
+          <span class="step-num">05</span>
+          <div class="step-content">
+            <h4 class="step-name">GATE INTERACTION</h4>
+            <p class="step-desc">Execute H, X, Z, or CNOT gates to manipulate the statevector.</p>
+          </div>
+        </div>
+
+        <div class="pipeline-step-item circuit-step-badge">
+          <span class="step-num">06</span>
+          <div class="step-content">
+            <h4 class="step-name">WAVE MEASUREMENT</h4>
+            <p class="step-desc">Perform Born-rule measurement to collapse specific barrier qubits.</p>
+          </div>
+        </div>
+
+        <div class="pipeline-step-item circuit-step-badge">
+          <span class="step-num">07</span>
+          <div class="step-content">
+            <h4 class="step-name">PROBABILITY CONVERGENCE</h4>
+            <p class="step-desc">Exit probability amplitude satisfies level threshold (>= 70%, 80%, 90%).</p>
+          </div>
+        </div>
+
+        <div class="pipeline-step-item circuit-step-badge">
+          <span class="step-num">08</span>
+          <div class="step-content">
+            <h4 class="step-name">CONTAINMENT ESCAPE</h4>
+            <p class="step-desc">Player steps on Exit Portal and secures victory with quantum efficiency score.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .gameloop-section {
+    position: relative;
+    padding: 120px 24px;
+    max-width: 960px;
+    margin: 0 auto;
+    z-index: 10;
+  }
+
+  .pipeline-container {
+    padding: 48px 36px;
+    border: 1px solid var(--border-subtle);
+    box-shadow: 0 0 40px rgba(0, 0, 0, 0.5);
+  }
+
+  .pipeline-flow-track {
+    position: relative;
+  }
+
+  .pipeline-svg-line {
+    position: absolute;
+    top: 24px;
+    left: 20px;
+    width: 4px;
+    height: calc(100% - 48px);
+    pointer-events: none;
+  }
+
+  .pipeline-steps-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .pipeline-step-item {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    padding: 14px 20px;
+    background: rgba(10, 16, 26, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    transition: all 0.3s ease;
+  }
+
+  .pipeline-step-item:hover {
+    border-color: rgba(0, 240, 255, 0.4);
+    background: rgba(10, 16, 26, 0.95);
+    transform: translateX(6px);
+  }
+
+  .step-num {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: rgba(0, 240, 255, 0.15);
+    border: 1px solid var(--quantum-cyan);
+    font-family: var(--font-mono);
+    font-size: 13px;
+    font-weight: 800;
+    color: var(--quantum-cyan);
+    flex-shrink: 0;
+    z-index: 2;
+  }
+
+  .step-content {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .step-name {
+    font-family: var(--font-display);
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    color: #f1f5f9;
+  }
+
+  .step-desc {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: #94a3b8;
+  }
+
+  @media (max-width: 768px) {
+    .pipeline-container {
+      padding: 24px 16px;
+    }
+    .pipeline-step-item {
+      gap: 14px;
+    }
+  }
+</style>

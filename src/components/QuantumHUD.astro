@@ -1,0 +1,98 @@
+---
+// Top and Bottom HUD elements for the active dynamic maze session
+---
+
+<div class="quantum-hud-top">
+  <div class="hud-group">
+    <div class="hud-item">
+      <span class="hud-label">Sector</span>
+      <span class="hud-value" id="hudLevelNumber">01</span>
+    </div>
+    <div class="hud-item">
+      <span class="hud-label">Sector Name</span>
+      <span class="hud-value" id="hudLevelTitle" style="color: var(--quantum-cyan);">Superposition Foundation</span>
+    </div>
+    <div class="hud-item">
+      <span class="hud-label">Elapsed Time</span>
+      <span class="hud-value" id="hudTime">00:00.0</span>
+    </div>
+    <div class="hud-item">
+      <span class="hud-label">Moves</span>
+      <span class="hud-value" id="hudMoveCount" style="color: var(--quantum-emerald);">0</span>
+    </div>
+  </div>
+
+  <div class="hud-group">
+    <div class="hud-item">
+      <span class="hud-label">Maze State</span>
+      <span class="quantum-badge badge-cyan" id="hudWallCount">42 / 42 Walls</span>
+    </div>
+
+    <div class="hud-item">
+      <span class="hud-label">Maze Stability</span>
+      <span class="quantum-badge badge-emerald" id="hudMazeStability" style="background: rgba(0,245,155,0.15); color: var(--quantum-emerald); border-color: rgba(0,245,155,0.4);">DYNAMIC</span>
+    </div>
+
+    <div class="hud-item">
+      <span class="hud-label">Quantum State</span>
+      <span class="quantum-badge badge-purple" id="hudQuantumStatus" style="background: rgba(199,125,255,0.15); color: #c77dff; border-color: rgba(199,125,255,0.4);">SUPERPOSITION</span>
+    </div>
+
+    <div class="hud-item">
+      <span class="hud-label">Quantum Energy</span>
+      <div class="energy-bar-container">
+        <div class="energy-track">
+          <div class="energy-fill" id="hudEnergyFill" style="width: 100%;"></div>
+        </div>
+        <span class="hud-value" id="hudEnergyValue" style="font-size: 12px;">100 QE</span>
+      </div>
+    </div>
+
+    <div class="hud-item">
+      <span class="hud-label">Measurement Budget</span>
+      <div class="meas-badge">
+        <span>⚡</span>
+        <span id="hudMeasurementCount">0 / 4</span>
+      </div>
+    </div>
+
+    <button id="btnPause" class="btn-quantum-secondary" style="padding: 6px 12px; font-size: 11px;">
+      ⏸ PAUSE [ESC]
+    </button>
+  </div>
+</div>
+
+<div class="quantum-hud-bottom">
+  <div class="hud-group">
+    <span class="hud-label" style="margin-right: 4px;">Gate Operations:</span>
+    <div class="gate-inventory" id="hudGateInventory">
+      <button class="gate-btn" data-gate="H" title="Hadamard: Creates Superposition (Cost: 10 QE)">
+        <span class="gate-glyph">H</span>
+        <span class="gate-cost">10 QE</span>
+      </button>
+      <button class="gate-btn" data-gate="X" title="Pauli-X: Bit Flip NOT (Cost: 5 QE)">
+        <span class="gate-glyph">X</span>
+        <span class="gate-cost">5 QE</span>
+      </button>
+      <button class="gate-btn" data-gate="Z" title="Pauli-Z: Phase Flip (Cost: 5 QE)">
+        <span class="gate-glyph">Z</span>
+        <span class="gate-cost">5 QE</span>
+      </button>
+      <button class="gate-btn" data-gate="CNOT" title="Controlled-NOT: Entanglement (Cost: 20 QE)">
+        <span class="gate-glyph">CX</span>
+        <span class="gate-cost">20 QE</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="hud-group">
+    <div class="hud-item" style="text-align: right; margin-right: 12px;">
+      <span class="hud-label">Exit Probability</span>
+      <span id="hudExitProb" class="hud-value" style="color: var(--quantum-cyan); font-size: 14px;">50.0%</span>
+    </div>
+    <div class="hud-item" style="text-align: right;">
+      <span class="hud-label">Exit Status</span>
+      <span id="hudExitStatus" class="quantum-badge badge-amber">LOCKED</span>
+    </div>
+  </div>
+</div>
