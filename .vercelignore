@@ -1,0 +1,4 @@
+# Ignore backend folder on Vercel (backend is deployed to Render)
+backend/
+.pytest_cache/
+.venv/
