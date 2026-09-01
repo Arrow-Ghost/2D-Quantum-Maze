@@ -506,6 +506,7 @@ export class GameEngine {
     const report = ScoreEngine.calculate({
       level: this.currentLevel,
       elapsedTime: this.elapsedTime,
+      movesUsed: this.movesUsed,
       gatesUsed: this.gatesUsed,
       measurementsUsed: this.measurementsUsed,
       finalProbability: this.exitProbabilityTrue,
@@ -514,7 +515,6 @@ export class GameEngine {
       invalidOperations: this.invalidOperations,
       restartsCount: this.restartsCount,
     });
-    (report as any).movesUsed = this.movesUsed;
 
     const idx = this.currentLevel.levelNumber; // next level index in LEVELS
     const nextId = idx < LEVELS.length ? LEVELS[idx].id : null;

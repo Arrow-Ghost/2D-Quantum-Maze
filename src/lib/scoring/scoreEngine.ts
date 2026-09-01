@@ -7,6 +7,7 @@ import type { ScoreReport, LevelData } from '../types';
 export interface ScoreCalculationParams {
   level: LevelData;
   elapsedTime: number; // in seconds
+  movesUsed: number;
   gatesUsed: number;
   measurementsUsed: number;
   finalProbability: number;
@@ -31,6 +32,7 @@ export class ScoreEngine {
     const {
       level,
       elapsedTime,
+      movesUsed,
       gatesUsed,
       measurementsUsed,
       finalProbability,
@@ -104,6 +106,7 @@ export class ScoreEngine {
       totalScore,
       stars,
       elapsedTime: Math.round(elapsedTime * 10) / 10,
+      movesUsed: movesUsed || 0,
       gatesUsed,
       measurementsUsed,
       finalProbability: Math.round(finalProbability * 1000) / 1000,

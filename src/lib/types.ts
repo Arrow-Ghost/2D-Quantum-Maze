@@ -136,6 +136,16 @@ export interface StateInfo {
   purity: number;
 }
 
+export interface ExitValidationResult {
+  satisfied: boolean;
+  reason: string;
+  target_qubit?: number;
+  required_state?: number;
+  required_prob?: number;
+  current_probability: number;
+  state_info?: StateInfo;
+}
+
 export interface GateEntry {
   id: string;
   gate: string;
