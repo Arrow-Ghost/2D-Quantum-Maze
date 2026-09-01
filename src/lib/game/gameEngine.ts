@@ -1,7 +1,15 @@
 /**
- * Quantum Maze - Core Game Engine (Dynamic Maze Architecture)
- * Coordinates player movement, dynamic wall generation, Qiskit state evolution,
- * checkpoint activations, quantum terminal operators, and exit validations.
+ * Quantum Maze - core game engine.
+ *
+ * Fully client-side: the maze, the quantum state and the win check all run in the
+ * browser (see quantumSim.ts and mazeGenerator.ts). No backend required.
+ *
+ * Puzzle model:
+ *   1. Walk to the Quantum Checkpoint to unlock the terminal.
+ *   2. Open the terminal and apply gates / a measurement to drive the target
+ *      qubit into the state the exit needs.
+ *   3. When the exit reads OPEN, step onto it.
+ * Movement no longer perturbs the quantum state, so the puzzle is deterministic.
  */
 import type {
   GameStatus,
@@ -18,8 +26,9 @@ import type {
   GateEntry,
   ScoreReport,
 } from '../types';
+import { GATE_COSTS } from '../types';
 import { generateDynamicWalls } from './mazeGenerator';
-import { quantumClient } from '../api/quantumClient';
+import { QuantumSim } from './quantumSim';
 import { audioEngine } from '../audio/audioEngine';
 import { ScoreEngine } from '../scoring/scoreEngine';
 import { StorageManager } from '../storage/storage';
@@ -35,6 +44,9 @@ export interface GameEngineListeners {
 }
 
 export class GameEngine {
+  // Amplitude of the per-move "sensor noise" on the displayed exit probability.
+  private static readonly EXIT_JITTER = 0.06;
+
   public status: GameStatus = 'TITLE';
   public currentLevel: LevelData;
   public player: Player;
@@ -45,33 +57,35 @@ export class GameEngine {
   public quantumObjects: QuantumObject[] = [];
   public energyCells: EnergyCell[] = [];
 
-  public movesUsed: number = 0;
-  public energy: number = 100;
-  public measurementsUsed: number = 0;
-  public gatesUsed: number = 0;
-  public invalidOperations: number = 0;
-  public unnecessaryMeasurements: number = 0;
-  public restartsCount: number = 0;
-  public elapsedTime: number = 0;
+  public movesUsed = 0;
+  public energy = 100;
+  public measurementsUsed = 0;
+  public gatesUsed = 0;
+  public invalidOperations = 0;
+  public unnecessaryMeasurements = 0;
+  public restartsCount = 0;
+  public elapsedTime = 0;
 
-  public exitProbability: number = 0.5;
-  public exitUnlocked: boolean = false;
-  public exitValidationReason: string = '';
+  public exitProbability = 0.5; // jittered "live readout" shown to the player
+  public exitProbabilityTrue = 0.5; // exact value from the statevector
+  public exitUnlocked = false;
+  public exitValidationReason = '';
   public activeInteractiveTerminal: QuantumTerminal | null = null;
 
-  // Quantum State synced with Qiskit
   public stateInfo: StateInfo | null = null;
   public circuitGates: GateEntry[] = [];
-  public asciiDiagram: string = '';
-  public activeSessionId: string = '';
+  public asciiDiagram = '';
+  public activeSessionId = '';
 
+  private sim: QuantumSim;
   private listeners: GameEngineListeners = {};
   private timerInterval: number | null = null;
-  private isProcessingQuantumOp: boolean = false;
+  private busy = false;
 
   constructor(listeners: GameEngineListeners = {}) {
     this.listeners = listeners;
     this.currentLevel = LEVELS[0];
+    this.sim = new QuantumSim(1, 1);
     this.player = {
       r: 1,
       c: 1,
@@ -89,12 +103,12 @@ export class GameEngine {
 
   public async startLevel(levelId: string) {
     const level = LEVELS.find((l) => l.id === levelId) || LEVELS[0];
-    this.currentLevel = JSON.parse(JSON.stringify(level)); // Deep clone
-    this.checkpoints = [...this.currentLevel.checkpoints];
-    this.terminals = [...this.currentLevel.terminals];
-    this.doors = [...this.currentLevel.doors];
-    this.quantumObjects = [...this.currentLevel.quantumObjects];
-    this.energyCells = [...this.currentLevel.energyCells];
+    this.currentLevel = JSON.parse(JSON.stringify(level)) as LevelData;
+    this.checkpoints = this.currentLevel.checkpoints.map((c) => ({ ...c }));
+    this.terminals = this.currentLevel.terminals.map((t) => ({ ...t }));
+    this.doors = this.currentLevel.doors.map((d) => ({ ...d }));
+    this.quantumObjects = this.currentLevel.quantumObjects.map((o) => ({ ...o }));
+    this.energyCells = this.currentLevel.energyCells.map((e) => ({ ...e }));
 
     this.movesUsed = 0;
     this.energy = this.currentLevel.initialEnergy;
@@ -104,9 +118,11 @@ export class GameEngine {
     this.unnecessaryMeasurements = 0;
     this.elapsedTime = 0;
     this.exitProbability = 0.5;
+    this.exitProbabilityTrue = 0.5;
     this.exitUnlocked = false;
     this.exitValidationReason = '';
     this.activeInteractiveTerminal = null;
+    this.busy = false;
 
     this.player = {
       r: this.currentLevel.spawnPosition.r,
@@ -118,47 +134,27 @@ export class GameEngine {
       moveProgress: 0,
     };
 
-    // Initial deterministic wall layout
-    const activeCp = this.checkpoints.find((cp) => !cp.activated);
-    this.walls = generateDynamicWalls(
-      this.currentLevel.rows,
-      this.currentLevel.cols,
-      this.currentLevel.wallCount,
-      this.currentLevel.levelSeed,
-      0,
-      { r: this.player.r, c: this.player.c },
-      { r: this.currentLevel.exitPosition.r, c: this.currentLevel.exitPosition.c },
-      this.checkpoints.map((cp) => ({ r: cp.r, c: cp.c })),
-      this.terminals.map((t) => ({ r: t.r, c: t.c })),
-      this.quantumObjects.map((o) => ({ r: o.r, c: o.c })),
-      activeCp ? { r: activeCp.r, c: activeCp.c } : null
-    );
+    this.regenerateWalls(0, { r: this.player.r, c: this.player.c });
 
-    this.activeSessionId = `session_${this.currentLevel.id}_${Date.now()}`;
+    this.activeSessionId = `${this.currentLevel.id}-${this.currentLevel.levelSeed}`;
+
+    // Fresh quantum circuit for the level.
+    this.sim = new QuantumSim(this.currentLevel.numQubits, this.currentLevel.levelSeed);
+    this.sim.applyInitial(this.currentLevel.initialGates);
+    this.circuitGates = this.currentLevel.initialGates.map((g, i) => ({
+      id: `init${i}`,
+      gate: g.gate.toUpperCase(),
+      target: g.target,
+      control: g.control ?? null,
+      param: null,
+      step: i + 1,
+    }));
+    this.syncQuantumState();
+    this.checkExitCondition();
+
     this.status = 'PLAYING';
-
     this.startTimer();
     this.listeners.onWallTransition?.(this.walls);
-
-    // Initialize backend Qiskit circuit
-    try {
-      this.listeners.onMessage?.('Synchronizing with Qiskit Quantum Engine...', 'info');
-      const res = await quantumClient.initialize(
-        this.activeSessionId,
-        this.currentLevel.numQubits,
-        this.currentLevel.initialGates,
-        this.currentLevel.levelSeed
-      );
-      this.stateInfo = res.state_info;
-      this.circuitGates = res.gates;
-      this.asciiDiagram = res.ascii_diagram;
-      this.exitProbability = res.state_info.qubit_probabilities[0]?.p1 ?? 0.5;
-      await this.checkExitCondition();
-      this.listeners.onMessage?.('Quantum statevector synchronized.', 'success');
-    } catch (err: any) {
-      console.warn('Backend offline, running in deterministic simulation mode:', err.message);
-    }
-
     this.notifyState();
   }
 
@@ -171,7 +167,7 @@ export class GameEngine {
     if (this.timerInterval) clearInterval(this.timerInterval);
     this.timerInterval = window.setInterval(() => {
       if (this.status === 'PLAYING') {
-        this.elapsedTime += 0.1;
+        this.elapsedTime = Math.round((this.elapsedTime + 0.1) * 10) / 10;
         this.notifyState();
       }
     }, 100);
@@ -191,286 +187,315 @@ export class GameEngine {
     }
   }
 
+  private regenerateWalls(moveCount: number, at: Position) {
+    const activeCp = this.checkpoints.find((cp) => !cp.activated) || null;
+    this.walls = generateDynamicWalls(
+      this.currentLevel.rows,
+      this.currentLevel.cols,
+      this.currentLevel.wallCount,
+      this.currentLevel.levelSeed,
+      moveCount,
+      at,
+      { r: this.currentLevel.exitPosition.r, c: this.currentLevel.exitPosition.c },
+      this.checkpoints.map((cp) => ({ r: cp.r, c: cp.c })),
+      this.terminals.map((t) => ({ r: t.r, c: t.c })),
+      [
+        ...this.quantumObjects.map((o) => ({ r: o.r, c: o.c })),
+        ...this.energyCells.map((e) => ({ r: e.r, c: e.c })),
+      ],
+      activeCp ? { r: activeCp.r, c: activeCp.c } : null
+    );
+  }
+
   public movePlayer(dir: Direction) {
     if (this.status !== 'PLAYING' || this.player.isMoving) return;
-
     this.player.direction = dir;
 
-    let targetR = this.player.r;
-    let targetC = this.player.c;
+    let tr = this.player.r;
+    let tc = this.player.c;
+    if (dir === 'UP') tr -= 1;
+    else if (dir === 'DOWN') tr += 1;
+    else if (dir === 'LEFT') tc -= 1;
+    else if (dir === 'RIGHT') tc += 1;
 
-    if (dir === 'UP') targetR -= 1;
-    else if (dir === 'DOWN') targetR += 1;
-    else if (dir === 'LEFT') targetC -= 1;
-    else if (dir === 'RIGHT') targetC += 1;
-
-    // 1. Validate grid bounds
-    if (
-      targetR < 0 ||
-      targetR >= this.currentLevel.rows ||
-      targetC < 0 ||
-      targetC >= this.currentLevel.cols
-    ) {
+    if (tr < 0 || tr >= this.currentLevel.rows || tc < 0 || tc >= this.currentLevel.cols) {
+      audioEngine.playError();
+      return;
+    }
+    if (this.walls.some((w) => w.r === tr && w.c === tc)) {
       audioEngine.playError();
       return;
     }
 
-    // 2. Validate current wall collision
-    const isWall = this.walls.some((w) => w.r === targetR && w.c === targetC);
-    if (isWall) {
-      audioEngine.playError();
-      return;
-    }
-
-    // 3. Move player
-    this.player.targetR = targetR;
-    this.player.targetC = targetC;
+    this.player.targetR = tr;
+    this.player.targetC = tc;
     this.player.isMoving = true;
     this.player.moveProgress = 0;
     this.movesUsed++;
     audioEngine.playMove();
 
-    // 4. Trigger Dynamic Wall Randomization (Exact Invariant Count)
-    const activeCp = this.checkpoints.find((cp) => !cp.activated);
-    const newWalls = generateDynamicWalls(
-      this.currentLevel.rows,
-      this.currentLevel.cols,
-      this.currentLevel.wallCount,
-      this.currentLevel.levelSeed,
-      this.movesUsed,
-      { r: targetR, c: targetC },
-      { r: this.currentLevel.exitPosition.r, c: this.currentLevel.exitPosition.c },
-      this.checkpoints.map((cp) => ({ r: cp.r, c: cp.c })),
-      this.terminals.map((t) => ({ r: t.r, c: t.c })),
-      this.quantumObjects.map((o) => ({ r: o.r, c: o.c })),
-      activeCp ? { r: activeCp.r, c: activeCp.c } : null,
-      this.walls
-    );
+    // Every step drains quantum energy...
+    const moveCost = this.currentLevel.moveEnergyCost ?? 2;
+    this.energy = Math.max(0, this.energy - moveCost);
+    if (this.energy === 0) {
+      this.listeners.onMessage?.('Quantum energy depleted - collect cells or restart.', 'warning');
+    }
 
-    this.walls = newWalls;
-    this.listeners.onWallTransition?.(newWalls);
+    // ...rewrites the maze topology...
+    this.regenerateWalls(this.movesUsed, { r: tr, c: tc });
+    this.listeners.onWallTransition?.(this.walls);
 
-    // 5. Asynchronously evolve quantum state via Qiskit backend
-    quantumClient
-      .postMove(
-        this.activeSessionId,
-        dir,
-        [targetR, targetC],
-        this.currentLevel.rows,
-        this.currentLevel.cols,
-        this.currentLevel.wallCount,
-        this.currentLevel.levelSeed,
-        [this.currentLevel.exitPosition.r, this.currentLevel.exitPosition.c],
-        this.checkpoints.map((cp) => [cp.r, cp.c]),
-        this.terminals.map((t) => [t.r, t.c]),
-        this.quantumObjects.map((o) => [o.r, o.c]),
-        activeCp ? [activeCp.r, activeCp.c] : undefined
-      )
-      .then((res) => {
-        if (res.state_info) this.stateInfo = res.state_info;
-        if (res.exit_probability !== undefined) this.exitProbability = res.exit_probability;
-        if (res.ascii_diagram) this.asciiDiagram = res.ascii_diagram;
-        this.checkExitCondition();
-      })
-      .catch((err) => {
-        // Fallback mathematical phase evolution if offline
-        const angleDeg =
-          (targetR * 37 + targetC * 23 + this.movesUsed * 41 + this.currentLevel.levelSeed * 13) %
-          360;
-        this.exitProbability = Math.round((Math.sin((angleDeg * Math.PI) / 180) * 0.4 + 0.5) * 100) / 100;
-        this.checkExitCondition();
-      });
+    // ...and re-reads the (fluctuating) exit probability.
+    this.refreshExitDisplay();
+    this.checkExitCondition();
 
-    // Start movement interpolation
-    const moveStep = () => {
-      this.player.moveProgress += 0.25;
+    // Drive the step tween on a timer, not requestAnimationFrame: this keeps the
+    // move completing (and the input lock releasing) even if the tab is hidden.
+    const stepAnim = () => {
+      this.player.moveProgress += 0.34;
       if (this.player.moveProgress >= 1) {
         this.player.r = this.player.targetR;
         this.player.c = this.player.targetC;
         this.player.isMoving = false;
         this.player.moveProgress = 0;
-        this.onPlayerStepCompleted();
+        this.onStepCompleted();
       } else {
-        requestAnimationFrame(moveStep);
+        setTimeout(stepAnim, 16);
       }
       this.notifyState();
     };
-    requestAnimationFrame(moveStep);
+    setTimeout(stepAnim, 16);
   }
 
-  private onPlayerStepCompleted() {
-    // 1. Check Energy Cell collection
-    const cell = this.energyCells.find(
-      (c) => !c.collected && c.r === this.player.r && c.c === this.player.c
-    );
+  private onStepCompleted() {
+    const { r, c } = this.player;
+
+    const cell = this.energyCells.find((e) => !e.collected && e.r === r && e.c === c);
     if (cell) {
       cell.collected = true;
-      this.energy = Math.min(250, this.energy + cell.energyAmount);
+      this.energy = Math.min(this.currentLevel.initialEnergy + 120, this.energy + cell.energyAmount);
       audioEngine.playEnergyCollect();
-      this.listeners.onMessage?.(`+${cell.energyAmount} Quantum Energy acquired!`, 'success');
+      this.listeners.onMessage?.(`+${cell.energyAmount} energy`, 'success');
     }
 
-    // 2. Check Checkpoint Reached
-    const checkpoint = this.checkpoints.find(
-      (cp) => !cp.activated && cp.r === this.player.r && cp.c === this.player.c
-    );
-    if (checkpoint) {
-      checkpoint.activated = true;
+    const cp = this.checkpoints.find((k) => !k.activated && k.r === r && k.c === c);
+    if (cp) {
+      cp.activated = true;
       audioEngine.playVictory();
-      this.listeners.onMessage?.(`✓ ${checkpoint.label} Activated! Quantum Terminals unlocked.`, 'success');
-
-      // Unlock all corresponding quantum terminals
-      this.terminals.forEach((term) => {
-        term.unlocked = true;
-      });
+      this.terminals.forEach((t) => (t.unlocked = true));
+      const remaining = this.checkpoints.filter((k) => !k.activated).length;
+      this.listeners.onMessage?.(
+        remaining > 0
+          ? `${cp.label} secured - ${remaining} checkpoint(s) left.`
+          : `${cp.label} secured - terminal online. Press [E].`,
+        'success'
+      );
+      this.regenerateWalls(this.movesUsed, { r, c });
+      this.listeners.onWallTransition?.(this.walls);
+      this.checkExitCondition();
     }
 
-    // 3. Check Proximity to Quantum Terminals
-    const nearbyTerminal = this.terminals.find(
-      (t) => Math.abs(t.r - this.player.r) + Math.abs(t.c - this.player.c) <= 1
+    const near = this.terminals.find(
+      (t) => t.unlocked && Math.abs(t.r - r) + Math.abs(t.c - c) <= 1
     );
-    this.activeInteractiveTerminal = nearbyTerminal || null;
+    this.activeInteractiveTerminal = near || null;
     this.listeners.onInteractPrompt?.(this.activeInteractiveTerminal);
 
-    // 4. Check Exit Reached
     const exit = this.currentLevel.exitPosition;
-    if (this.player.r === exit.r && this.player.c === exit.c) {
-      if (this.exitUnlocked) {
-        this.handleVictory();
-      } else {
+    if (r === exit.r && c === exit.c) {
+      if (this.exitUnlocked) this.handleVictory();
+      else {
         audioEngine.playError();
         this.listeners.onMessage?.(
-          `Exit portal active but locked. Quantum condition required: Exit Probability >= ${Math.round(exit.requiredProbability * 100)}% (Current: ${Math.round(this.exitProbability * 100)}%).`,
+          this.exitValidationReason || 'Exit is locked - solve the quantum objective first.',
           'warning'
         );
       }
     }
+
+    this.notifyState();
+  }
+
+  private gateCost(gate: string): number {
+    return GATE_COSTS[gate.toUpperCase()] ?? 5;
   }
 
   public async applyGate(gate: string, targetQubit: number, controlQubit?: number | null) {
-    if (this.isProcessingQuantumOp) return;
-    this.isProcessingQuantumOp = true;
-
+    if (this.busy || this.status !== 'PLAYING') return;
+    if (!this.terminals.some((t) => t.unlocked)) {
+      this.listeners.onMessage?.('Reach the checkpoint to unlock the terminal.', 'warning');
+      return;
+    }
+    this.busy = true;
     try {
-      const res = await quantumClient.applyGate(
-        this.activeSessionId,
-        gate,
-        targetQubit,
-        controlQubit ?? null,
-        this.energy
-      );
+      const g = gate.toUpperCase();
+      const n = this.currentLevel.numQubits;
+      const isCnot = g === 'CNOT' || g === 'CX';
 
-      if (!res.success) {
-        this.invalidOperations++;
-        audioEngine.playError();
-        this.listeners.onMessage?.(res.error || 'Gate operation rejected.', 'error');
-        this.isProcessingQuantumOp = false;
+      if (targetQubit < 0 || targetQubit >= n) {
+        this.fail(`Qubit q${targetQubit} is out of range.`);
+        return;
+      }
+      if (isCnot && (controlQubit == null || controlQubit < 0 || controlQubit >= n || controlQubit === targetQubit)) {
+        this.fail('CNOT needs a different, valid control qubit.');
+        return;
+      }
+      const cost = this.gateCost(g);
+      if (this.energy < cost) {
+        this.fail(`Not enough energy (need ${cost}).`);
         return;
       }
 
-      this.energy = Math.max(0, this.energy - res.energy_cost);
+      const entry = this.sim.gate(g, targetQubit, isCnot ? controlQubit ?? null : null);
+      this.circuitGates.push(entry);
+      this.energy -= cost;
       this.gatesUsed++;
-      if (res.state_info) {
-        this.stateInfo = res.state_info;
-        this.exitProbability = res.state_info.qubit_probabilities[0]?.p1 ?? this.exitProbability;
-      }
-      if (res.gate_entry) this.circuitGates.push(res.gate_entry);
-      if (res.ascii_diagram) this.asciiDiagram = res.ascii_diagram;
 
-      const g = gate.toUpperCase();
       if (g === 'H') audioEngine.playGateH();
       else if (g === 'X') audioEngine.playGateX();
       else if (g === 'Z') audioEngine.playGateZ();
-      else if (g === 'CNOT' || g === 'CX') audioEngine.playGateCNOT();
+      else if (isCnot) audioEngine.playGateCNOT();
       else audioEngine.playDoorOpen();
 
-      this.listeners.onMessage?.(
-        `Applied gate ${gate} on q${targetQubit}. Statevector updated.`,
-        'success'
-      );
-
-      await this.checkExitCondition();
+      this.syncQuantumState();
+      this.listeners.onMessage?.(`${isCnot ? 'CNOT' : g} applied to q${targetQubit}.`, 'info');
+      this.checkExitCondition();
     } catch (err: any) {
-      this.invalidOperations++;
-      audioEngine.playError();
-      this.listeners.onMessage?.(err.message, 'error');
+      this.fail(err?.message || 'Gate operation failed.');
     } finally {
-      this.isProcessingQuantumOp = false;
+      this.busy = false;
       this.notifyState();
     }
   }
 
   public async performMeasurement(targetQubit: number) {
-    if (this.isProcessingQuantumOp) return;
+    if (this.busy || this.status !== 'PLAYING') return;
+    if (!this.terminals.some((t) => t.unlocked)) {
+      this.listeners.onMessage?.('Reach the checkpoint to unlock the terminal.', 'warning');
+      return;
+    }
     if (this.measurementsUsed >= this.currentLevel.measurementBudget) {
       audioEngine.playError();
-      this.listeners.onMessage?.(
-        `Measurement budget depleted (${this.measurementsUsed}/${this.currentLevel.measurementBudget}).`,
-        'warning'
-      );
+      this.listeners.onMessage?.('Measurement budget spent.', 'warning');
+      return;
+    }
+    const n = this.currentLevel.numQubits;
+    if (targetQubit < 0 || targetQubit >= n) {
+      this.fail(`Qubit q${targetQubit} is out of range.`);
+      return;
+    }
+    const cost = GATE_COSTS.M;
+    if (this.energy < cost) {
+      this.fail(`Not enough energy to measure (need ${cost}).`);
       return;
     }
 
-    this.isProcessingQuantumOp = true;
-
+    this.busy = true;
     try {
-      const res = await quantumClient.measure(this.activeSessionId, targetQubit, this.energy);
-      if (!res.success) {
-        audioEngine.playError();
-        this.listeners.onMessage?.(res.error || 'Measurement failed.', 'error');
-        this.isProcessingQuantumOp = false;
-        return;
-      }
-
-      this.energy = Math.max(0, this.energy - res.energy_cost);
+      const { outcome, entry } = this.sim.measure(targetQubit);
+      this.circuitGates.push(entry);
+      this.energy -= cost;
       this.measurementsUsed++;
-      if (res.state_info) {
-        this.stateInfo = res.state_info;
-        this.exitProbability = res.state_info.qubit_probabilities[0]?.p1 ?? (res.outcome === 1 ? 1.0 : 0.0);
-      }
-      if (res.gate_entry) this.circuitGates.push(res.gate_entry);
-      if (res.ascii_diagram) this.asciiDiagram = res.ascii_diagram;
-
       audioEngine.playMeasurement();
-      this.listeners.onMessage?.(
-        `Wavefunction collapsed! Qubit q${targetQubit} measured into state |${res.outcome}⟩.`,
-        'info'
-      );
-
-      await this.checkExitCondition();
+      this.syncQuantumState();
+      this.listeners.onMessage?.(`q${targetQubit} collapsed to |${outcome}⟩.`, 'info');
+      this.checkExitCondition();
     } catch (err: any) {
-      audioEngine.playError();
-      this.listeners.onMessage?.(err.message, 'error');
+      this.fail(err?.message || 'Measurement failed.');
     } finally {
-      this.isProcessingQuantumOp = false;
+      this.busy = false;
       this.notifyState();
     }
   }
 
-  public async checkExitCondition() {
+  private fail(msg: string) {
+    this.invalidOperations++;
+    audioEngine.playError();
+    this.listeners.onMessage?.(msg, 'error');
+  }
+
+  private syncQuantumState() {
+    this.stateInfo = this.sim.stateInfo();
+    this.asciiDiagram = this.sim.asciiDiagram(this.circuitGates);
     const exit = this.currentLevel.exitPosition;
-    const allCheckpointsActive = this.checkpoints.every((cp) => cp.activated);
+    const qp = this.stateInfo.qubit_probabilities[exit.targetQubit];
+    if (qp) this.exitProbabilityTrue = exit.requiredState === 1 ? qp.p1 : qp.p0;
+    this.refreshExitDisplay();
+  }
 
-    try {
-      const res = await quantumClient.validateExit(
-        this.activeSessionId,
-        exit.conditionType,
-        exit.targetQubit,
-        exit.requiredProbability,
-        exit.requiredState
-      );
-
-      this.exitUnlocked = res.satisfied && allCheckpointsActive;
-      this.exitValidationReason = res.reason;
-
-      if (!allCheckpointsActive) {
-        this.exitUnlocked = false;
-        this.exitValidationReason = 'Activate all Quantum Checkpoints first.';
-      }
-    } catch (err) {
-      this.exitUnlocked = this.exitProbability >= exit.requiredProbability && allCheckpointsActive;
+  /**
+   * The number the player sees fluctuates every move like a noisy sensor. The
+   * jitter is tapered to zero as the true probability approaches 0 or 1, so a
+   * definite state reads rock-steady and a superposition looks unstable.
+   */
+  private refreshExitDisplay() {
+    const p = this.exitProbabilityTrue;
+    const qp = this.stateInfo?.qubit_probabilities[this.currentLevel.exitPosition.targetQubit];
+    if (qp?.collapsed_state !== null && qp?.collapsed_state !== undefined) {
+      this.exitProbability = p; // a measured qubit reads dead steady
+      return;
     }
-    this.notifyState();
+    // Largest near a 50/50 superposition, smallest (but never zero) near a
+    // definite |0⟩/|1⟩, so the readout always ticks but a solved state stays put.
+    const taper = 0.3 + 0.7 * (4 * p * (1 - p));
+    const jitter =
+      GameEngine.EXIT_JITTER *
+      taper *
+      Math.sin(
+        this.movesUsed * 1.9 +
+          this.currentLevel.levelSeed * 0.013 +
+          this.player.r * 2.3 +
+          this.player.c * 1.7
+      );
+    this.exitProbability = Math.max(0, Math.min(1, p + jitter));
+  }
+
+  public checkExitCondition() {
+    const exit = this.currentLevel.exitPosition;
+    const allCp = this.checkpoints.every((cp) => cp.activated);
+    const info = this.stateInfo;
+    const qp = info?.qubit_probabilities[exit.targetQubit];
+
+    let satisfied = false;
+    let reason = '';
+
+    if (qp) {
+      // The fluctuating readout is what the exit actually checks against.
+      const cur = this.exitProbability;
+      const pct = Math.round(cur * 100);
+      const need = Math.round(exit.requiredProbability * 100);
+      if (exit.conditionType === 'collapsed_state') {
+        satisfied = qp.collapsed_state === exit.requiredState;
+        reason = satisfied
+          ? `q${exit.targetQubit} is measured as |${exit.requiredState}⟩.`
+          : `Measure q${exit.targetQubit} until it collapses to |${exit.requiredState}⟩.`;
+      } else if (exit.conditionType === 'entangled_pair') {
+        satisfied = !!qp.is_entangled && cur >= exit.requiredProbability - 1e-4;
+        reason = satisfied
+          ? `q${exit.targetQubit} is entangled and aligned (${pct}%).`
+          : `Entangle q${exit.targetQubit} with the control (need ${need}% and correlation).`;
+      } else {
+        satisfied = cur >= exit.requiredProbability - 1e-4;
+        reason = satisfied
+          ? `Exit probability ${pct}% ≥ ${need}%.`
+          : `Drive q${exit.targetQubit} to |${exit.requiredState}⟩: ${pct}% / ${need}%.`;
+      }
+    }
+
+    const wasUnlocked = this.exitUnlocked;
+    // Latches: once the objective is met with every checkpoint active, the exit
+    // stays open even if the probability readout later dips.
+    this.exitUnlocked = allCp && (satisfied || wasUnlocked);
+    this.exitValidationReason = !allCp
+      ? 'Activate every checkpoint first.'
+      : this.exitUnlocked && !satisfied
+        ? 'Exit stabilised - portal locked open.'
+        : reason;
+
+    if (this.exitUnlocked && !wasUnlocked) {
+      audioEngine.playDoorOpen();
+      this.listeners.onMessage?.('Exit portal OPEN - step onto it.', 'success');
+    }
   }
 
   private handleVictory() {
@@ -478,41 +503,36 @@ export class GameEngine {
     this.status = 'VICTORY';
     audioEngine.playVictory();
 
-    const scoreReport = ScoreEngine.calculate({
+    const report = ScoreEngine.calculate({
       level: this.currentLevel,
       elapsedTime: this.elapsedTime,
+      movesUsed: this.movesUsed,
       gatesUsed: this.gatesUsed,
       measurementsUsed: this.measurementsUsed,
-      finalProbability: this.exitProbability,
+      finalProbability: this.exitProbabilityTrue,
       energyRemaining: this.energy,
       unnecessaryMeasurements: this.unnecessaryMeasurements,
       invalidOperations: this.invalidOperations,
       restartsCount: this.restartsCount,
     });
 
-    // Append movesUsed
-    (scoreReport as any).movesUsed = this.movesUsed;
-
-    // Record level completion
-    const nextLevelIndex = this.currentLevel.levelNumber;
-    const nextLevelId = nextLevelIndex < LEVELS.length ? LEVELS[nextLevelIndex].id : null;
-    StorageManager.recordLevelCompletion(this.currentLevel.id, nextLevelId, scoreReport);
-
-    // Save to leaderboard
+    const idx = this.currentLevel.levelNumber; // next level index in LEVELS
+    const nextId = idx < LEVELS.length ? LEVELS[idx].id : null;
+    StorageManager.recordLevelCompletion(this.currentLevel.id, nextId, report);
     StorageManager.addLeaderboardEntry({
       levelId: this.currentLevel.id,
       levelNumber: this.currentLevel.levelNumber,
       playerName: StorageManager.getPlayerName(),
-      totalScore: scoreReport.totalScore,
-      elapsedTime: scoreReport.elapsedTime,
+      totalScore: report.totalScore,
+      elapsedTime: report.elapsedTime,
       movesUsed: this.movesUsed,
-      gatesUsed: scoreReport.gatesUsed,
-      measurementsUsed: scoreReport.measurementsUsed,
-      quantumEfficiency: scoreReport.quantumEfficiency,
-      finalProbability: scoreReport.finalProbability,
+      gatesUsed: report.gatesUsed,
+      measurementsUsed: report.measurementsUsed,
+      quantumEfficiency: report.quantumEfficiency,
+      finalProbability: report.finalProbability,
     });
 
-    this.listeners.onVictory?.(scoreReport);
+    this.listeners.onVictory?.(report);
     this.notifyState();
   }
 

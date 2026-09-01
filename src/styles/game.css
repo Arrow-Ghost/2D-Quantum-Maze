@@ -1,205 +1,313 @@
-/* Game Layout and Viewport Styles */
+/* Quantum Maze - in-game layout (minimal HUD, board fills the screen). */
 
-.game-layout {
-  display: grid;
-  grid-template-rows: auto 1fr auto;
-  min-height: 100vh;
-  max-height: 100vh;
+.game-shell {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
   overflow: hidden;
-  position: relative;
+  background: var(--bg);
 }
 
-.game-main-container {
-  display: grid;
-  grid-template-columns: 280px 1fr 340px;
+/* ---------------- Top bar ---------------- */
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   gap: 16px;
-  padding: 12px 16px;
-  overflow: hidden;
-  height: calc(100vh - 120px);
+  padding: 8px 16px;
+  background: var(--bg-2);
+  border-bottom: 2px solid var(--border);
+  z-index: 10;
 }
 
-/* Center Canvas Container */
-.canvas-wrapper {
+.topbar-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 190px;
+}
+
+.topbar-back {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border: 2px solid var(--border);
+  border-radius: 4px;
+  color: var(--text);
+  text-decoration: none;
+  font-size: 18px;
+  line-height: 1;
+}
+.topbar-back:hover { border-color: var(--accent); color: var(--accent); }
+
+.topbar-sector {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  color: var(--muted);
+}
+.topbar-title {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.topbar-objective {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  justify-content: center;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text);
+  text-align: center;
+}
+.topbar-objective-tag {
+  font-size: 9px;
+  letter-spacing: 0.16em;
+  color: var(--accent-ink);
+  background: var(--accent);
+  padding: 3px 6px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 190px;
+  justify-content: flex-end;
+}
+.vital { display: flex; flex-direction: column; align-items: flex-start; }
+.vital-k { font-family: var(--font-mono); font-size: 8px; letter-spacing: 0.12em; color: var(--muted); }
+.vital-v { font-family: var(--font-mono); font-size: 14px; font-weight: 700; color: var(--text); }
+.vital-energy { flex-direction: row; align-items: center; gap: 6px; }
+.vital-energy .vital-k { align-self: center; }
+.vital-energy .energy-track { width: 84px; height: 10px; }
+.topbar-pause { padding: 6px 10px; font-size: 10px; letter-spacing: 0.1em; }
+
+/* ---------------- Board ---------------- */
+.board-area {
   position: relative;
+  flex: 1;
+  overflow: hidden;
+  background: var(--board-bg);
+}
+#gameCanvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* ---------------- Quantum readout panel ---------------- */
+.qpanel {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 236px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 12px;
+  background: var(--panel);
+  border: 2px solid var(--border);
+  border-radius: 6px;
+  box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.5);
+  font-family: var(--font-mono);
+  z-index: 6;
+}
+.qpanel-k {
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  color: var(--muted);
+}
+.qpanel-exit {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.qpanel-exit-k { font-size: 11px; letter-spacing: 0.14em; color: var(--muted); }
+.qpanel-exit-v { font-size: 22px; font-weight: 800; color: var(--text); margin-right: auto; }
+
+.qbar-head {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+.qbar-track {
+  height: 12px;
+  background: var(--bg);
+  border: 2px solid var(--border);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.qbar-fill {
+  height: 100%;
+  background: var(--accent);
+  transition: width 0.25s ease;
+}
+.qbar-sub {
+  margin-top: 5px;
+  font-size: 10px;
+  color: var(--muted);
+}
+
+.qpanel-gates { display: flex; flex-direction: column; gap: 8px; }
+.gate-row { display: flex; flex-wrap: wrap; gap: 6px; }
+.gate-chip {
+  min-width: 34px;
+  height: 30px;
+  padding: 0 8px;
+  background: var(--panel-2);
+  border: 2px solid var(--border);
+  border-radius: 4px;
+  color: var(--accent);
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 12px;
+  cursor: pointer;
+}
+.gate-chip:hover:not(:disabled) { border-color: var(--accent); transform: translate(-1px, -1px); }
+.gate-chip:disabled { opacity: 0.35; cursor: not-allowed; }
+.qpanel-foot {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 9px;
+  color: var(--muted);
+}
+.qpanel-open { width: 100%; padding: 8px; font-size: 10px; letter-spacing: 0.08em; }
+
+/* ---------------- Theme dock ---------------- */
+.theme-dock {
+  position: absolute;
+  left: 14px;
+  bottom: 14px;
+  display: flex;
+  gap: 6px;
+  padding: 6px;
+  background: var(--panel);
+  border: 2px solid var(--border);
+  border-radius: 6px;
+  z-index: 6;
+}
+.theme-swatch {
+  width: 22px;
+  height: 22px;
+  border: 2px solid var(--border);
+  border-radius: 3px;
+  cursor: pointer;
+  padding: 0;
+}
+.theme-swatch:hover { border-color: var(--text); }
+.theme-swatch.active { border-color: var(--text); box-shadow: 0 0 0 2px var(--text); }
+.theme-swatch[data-theme-btn='superposition'] { background: #a970ff; }
+.theme-swatch[data-theme-btn='entangled'] { background: #1fe0c8; }
+.theme-swatch[data-theme-btn='collapse'] { background: #ff5064; }
+.theme-swatch[data-theme-btn='phase'] { background: #ffb638; }
+.theme-swatch[data-theme-btn='ground'] { background: #d7d7e2; }
+
+/* ---------------- Help ---------------- */
+.help-fab {
+  position: absolute;
+  right: 14px;
+  bottom: 14px;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  background: var(--panel);
+  color: var(--text);
+  font-weight: 800;
+  font-family: var(--font-mono);
+  cursor: pointer;
+  z-index: 6;
+}
+.help-fab:hover { border-color: var(--accent); color: var(--accent); }
+
+.help-overlay {
+  position: absolute;
+  inset: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #070b10;
-  border: 1px solid var(--border-subtle);
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.8);
+  background: rgba(6, 6, 10, 0.86);
+  z-index: 20;
 }
-
-#gameCanvas {
-  display: block;
-  max-width: 100%;
-  max-height: 100%;
-  object-fit: contain;
+.help-card {
+  width: min(520px, 92%);
+  padding: 22px;
+  background: var(--panel);
+  border: 3px solid var(--accent);
+  border-radius: 8px;
+  box-shadow: 8px 8px 0 rgba(0, 0, 0, 0.6);
 }
-
-/* Scanline Overlay for Sci-Fi Monitor Aesthetic */
-.scanlines-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  background: linear-gradient(
-    rgba(18, 16, 16, 0) 50%,
-    rgba(0, 0, 0, 0.25) 50%
-  );
-  background-size: 100% 4px;
-  opacity: 0.6;
-}
-
-/* Left Sidebar: Quantum State & Mission */
-.left-sidebar {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  overflow-y: auto;
-}
-
-/* Right Sidebar: Quantum Circuit & Gates */
-.right-sidebar {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  overflow-y: auto;
-}
-
-/* State Panel Styles */
-.state-panel {
-  padding: 14px;
-  font-family: var(--font-mono);
-}
-
-.panel-header {
+.help-head {
   display: flex;
   align-items: center;
   justify-content: space-between;
   margin-bottom: 12px;
-  padding-bottom: 8px;
-  border-bottom: 1px solid var(--border-subtle);
+}
+.help-controls {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--muted);
+  margin-bottom: 12px;
+}
+.help-k {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  color: var(--accent);
+  margin-top: 10px;
+}
+.help-t {
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--text);
+  margin-top: 3px;
 }
 
+/* ---------------- Toast ---------------- */
+.message-toast {
+  position: absolute;
+  top: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 8px 16px;
+  border-radius: 4px;
+  border: 2px solid var(--border);
+  background: var(--panel);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 600;
+  z-index: 15;
+  pointer-events: none;
+}
+.toast-info { border-color: var(--accent); color: var(--accent); }
+.toast-success { border-color: var(--ok); color: var(--ok); }
+.toast-warning { border-color: var(--warn); color: var(--warn); }
+.toast-error { border-color: var(--danger); color: var(--danger); }
+
 .panel-title {
+  font-family: var(--font-mono);
   font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.08em;
-  color: var(--quantum-cyan);
+  color: var(--accent);
   text-transform: uppercase;
 }
 
-.dirac-formula {
-  background: rgba(0, 0, 0, 0.4);
-  border: 1px solid rgba(0, 240, 255, 0.2);
-  border-radius: 6px;
-  padding: 10px;
-  font-size: 13px;
-  color: #38bdf8;
-  word-break: break-all;
-  margin-bottom: 12px;
-  text-shadow: 0 0 8px rgba(0, 240, 255, 0.3);
-}
-
-/* Probability Bars */
-.prob-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 8px;
-  font-size: 12px;
-}
-
-.prob-label {
-  width: 40px;
-  color: #94a3b8;
-  font-weight: 600;
-}
-
-.prob-bar-track {
-  flex: 1;
-  height: 10px;
-  background: #0d1520;
-  border-radius: 5px;
-  overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-.prob-bar-fill {
-  height: 100%;
-  background: linear-gradient(90deg, #00f0ff, #00f59b);
-  border-radius: 5px;
-  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 0 10px rgba(0, 240, 255, 0.4);
-}
-
-.prob-value {
-  width: 45px;
-  text-align: right;
-  color: #f1f5f9;
-  font-weight: 600;
-}
-
-/* Circuit Visualizer Styles */
-.circuit-container {
-  padding: 14px;
-}
-
-.ascii-circuit {
-  background: #070c12;
-  border: 1px solid rgba(0, 240, 255, 0.2);
-  border-radius: 6px;
-  padding: 12px;
-  font-family: var(--font-mono);
-  font-size: 12px;
-  line-height: 1.4;
-  color: #a5f3fc;
-  white-space: pre;
-  overflow-x: auto;
-  box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.6);
-}
-
-/* Notification Bar / Toast */
-.message-toast {
-  position: absolute;
-  top: 16px;
-  left: 50%;
-  transform: translateX(-50%);
-  padding: 8px 18px;
-  border-radius: 8px;
-  font-family: var(--font-mono);
-  font-size: 12px;
-  font-weight: 600;
-  z-index: 100;
-  pointer-events: none;
-  backdrop-filter: blur(10px);
-  animation: fadeInDown 0.3s ease;
-}
-
-.toast-info {
-  background: rgba(15, 23, 42, 0.9);
-  border: 1px solid rgba(0, 240, 255, 0.4);
-  color: var(--quantum-cyan);
-}
-
-.toast-success {
-  background: rgba(6, 44, 28, 0.9);
-  border: 1px solid rgba(0, 245, 155, 0.4);
-  color: var(--quantum-emerald);
-}
-
-.toast-warning {
-  background: rgba(45, 26, 0, 0.9);
-  border: 1px solid rgba(255, 183, 3, 0.4);
-  color: var(--quantum-amber);
-}
-
-.toast-error {
-  background: rgba(45, 10, 18, 0.9);
-  border: 1px solid rgba(255, 51, 102, 0.4);
-  color: var(--quantum-crimson);
+@media (max-width: 900px) {
+  .topbar-objective { display: none; }
+  .qpanel { width: 200px; }
 }

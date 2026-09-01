@@ -141,6 +141,7 @@ import '../styles/animations.css';
 
   <script>
     import { quantumClient } from '../lib/api/quantumClient';
+    import { QuantumSim } from '../lib/game/quantumSim';
 
     document.addEventListener('DOMContentLoaded', async () => {
       let numQubits = 2;
@@ -175,35 +176,50 @@ import '../styles/animations.css';
         }
       }
 
+      function updateUIWithState(ascii: string, dirac: string, basisStates: any[]) {
+        if (labAsciiDisplay) labAsciiDisplay.textContent = ascii || 'q0: ──[|0⟩]──';
+        if (labDiracDisplay) labDiracDisplay.textContent = dirac || '|0⟩';
+
+        if (labBasisStateBars) {
+          labBasisStateBars.innerHTML = basisStates
+            .map((bs) => {
+              const pct = Math.round(bs.probability * 100);
+              return `
+                <div class="prob-row">
+                  <span class="prob-label" style="width: 50px; color: #38bdf8;">|${bs.binary}⟩</span>
+                  <div class="prob-bar-track" style="height: 14px;">
+                    <div class="prob-bar-fill" style="width: ${pct}%;"></div>
+                  </div>
+                  <span class="prob-value" style="width: 50px;">${pct}%</span>
+                  <span style="font-size: 10px; color: #94a3b8; width: 45px; text-align: right;">${bs.phase_degrees.toFixed(0)}°</span>
+                </div>
+              `;
+            })
+            .join('');
+        }
+      }
+
       async function runSimulation() {
         try {
           const res = await quantumClient.executeArbitraryCircuit(numQubits, gates);
-          if (labAsciiDisplay) labAsciiDisplay.textContent = res.ascii_diagram || 'q0: ──[|0⟩]──';
-          if (labDiracDisplay) labDiracDisplay.textContent = res.state_info.dirac_notation || '|0⟩';
-
-          // Update Basis State Bars
-          if (labBasisStateBars) {
-            labBasisStateBars.innerHTML = res.state_info.basis_states
-              .map((bs) => {
-                const pct = Math.round(bs.probability * 100);
-                return `
-                  <div class="prob-row">
-                    <span class="prob-label" style="width: 50px; color: #38bdf8;">|${bs.binary}⟩</span>
-                    <div class="prob-bar-track" style="height: 14px;">
-                      <div class="prob-bar-fill" style="width: ${pct}%;"></div>
-                    </div>
-                    <span class="prob-value" style="width: 50px;">${pct}%</span>
-                    <span style="font-size: 10px; color: #94a3b8; width: 45px; text-align: right;">${bs.phase_degrees.toFixed(0)}°</span>
-                  </div>
-                `;
-              })
-              .join('');
+          updateUIWithState(res.ascii_diagram, res.state_info.dirac_notation, res.state_info.basis_states);
+        } catch {
+          // Client-side QuantumSim fallback
+          try {
+            const sim = new QuantumSim(numQubits);
+            const gateEntries: any[] = [];
+            for (const g of gates) {
+              const entry = sim.gate(g.gate, g.target, g.control ?? null);
+              gateEntries.push(entry);
+            }
+            const stateInfo = sim.stateInfo();
+            const ascii = sim.asciiDiagram(gateEntries);
+            updateUIWithState(ascii, stateInfo.dirac_notation, stateInfo.basis_states);
+          } catch (simErr: any) {
+            console.error('Client simulation error:', simErr);
           }
-
-          renderVisualWires();
-        } catch (err: any) {
-          console.error('Simulation error:', err);
         }
+        renderVisualWires();
       }
 
       function renderVisualWires() {

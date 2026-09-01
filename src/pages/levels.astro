@@ -2,6 +2,7 @@
 import Navbar from '../components/Navbar.astro';
 import { LEVELS } from '../data/levels';
 import '../styles/global.css';
+import '../styles/themes.css';
 import '../styles/animations.css';
 ---
 
@@ -84,30 +85,20 @@ import '../styles/animations.css';
         const enterBtn = card.querySelector(`[data-btn-for="${levelId}"]`) as HTMLAnchorElement;
         const starsContainer = card.querySelector(`[data-stars-for="${levelId}"]`);
 
-        if (prog && prog.unlocked) {
-          card.classList.remove('locked');
-          if (enterBtn) {
-            enterBtn.classList.remove('btn-quantum-secondary');
-            enterBtn.classList.add('btn-quantum');
-            enterBtn.style.pointerEvents = 'auto';
-            enterBtn.textContent = prog.completed ? 'REPLAY SECTOR ↺' : 'ENTER SECTOR ➔';
+        // Every sector is selectable - each level is a self-contained puzzle.
+        card.classList.remove('locked');
+        if (enterBtn) {
+          enterBtn.classList.remove('btn-quantum-secondary');
+          enterBtn.classList.add('btn-quantum');
+          enterBtn.style.pointerEvents = 'auto';
+          enterBtn.textContent = prog && prog.completed ? 'REPLAY SECTOR ↺' : 'ENTER SECTOR ➔';
+        }
+        if (starsContainer && prog && prog.stars > 0) {
+          let starsHtml = '';
+          for (let s = 1; s <= 3; s++) {
+            starsHtml += s <= prog.stars ? '<span style="color: var(--warn);">★</span>' : '<span style="color: #475569;">★</span>';
           }
-          if (starsContainer && prog.stars > 0) {
-            let starsHtml = '';
-            for (let s = 1; s <= 3; s++) {
-              starsHtml += s <= prog.stars ? '<span style="color: var(--quantum-amber);">★</span>' : '<span style="color: #475569;">★</span>';
-            }
-            starsContainer.innerHTML = starsHtml;
-          }
-        } else {
-          // Locked
-          card.classList.add('locked');
-          if (enterBtn) {
-            enterBtn.classList.remove('btn-quantum');
-            enterBtn.classList.add('btn-quantum-secondary');
-            enterBtn.style.opacity = '0.5';
-            enterBtn.textContent = '🔒 LOCKED';
-          }
+          starsContainer.innerHTML = starsHtml;
         }
       });
     });

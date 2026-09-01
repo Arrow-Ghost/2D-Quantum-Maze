@@ -12,5 +12,5 @@
       "@/*": ["src/*"]
     }
   },
-  "include": ["src/**/*", "env.d.ts"]
+  "include": [".astro/types.d.ts", "src/**/*", "src/env.d.ts"]
 }

@@ -3,7 +3,16 @@ interface Props {
   activePage?: 'home' | 'game' | 'levels' | 'lab' | 'tutorial' | 'leaderboard' | 'settings';
 }
 const { activePage = 'home' } = Astro.props;
+import '../styles/themes.css';
 ---
+
+<script is:inline>
+  try {
+    var t = localStorage.getItem('qm_theme');
+    if (t) document.documentElement.dataset.theme = t;
+  } catch (e) {}
+</script>
+
 
 <header class="main-navbar">
   <div class="nav-brand">
@@ -36,11 +45,34 @@ const { activePage = 'home' } = Astro.props;
     </a>
   </nav>
 
-  <div class="nav-engine-status" id="backendStatusBadge">
-    <span class="status-dot online"></span>
-    <span class="status-text">Qiskit Engine Active</span>
+  <div class="nav-theme" role="group" aria-label="Theme">
+    <button class="nav-theme-swatch" data-theme-btn="superposition" title="Superposition" style="background:#a970ff"></button>
+    <button class="nav-theme-swatch" data-theme-btn="entangled" title="Entangled" style="background:#1fe0c8"></button>
+    <button class="nav-theme-swatch" data-theme-btn="collapse" title="Collapse" style="background:#ff5064"></button>
+    <button class="nav-theme-swatch" data-theme-btn="phase" title="Phase" style="background:#ffb638"></button>
+    <button class="nav-theme-swatch" data-theme-btn="ground" title="Ground State" style="background:#d7d7e2"></button>
   </div>
 </header>
+
+<script is:inline>
+  (function () {
+    var THEMES = ['superposition', 'entangled', 'collapse', 'phase', 'ground'];
+    function set(name) {
+      if (THEMES.indexOf(name) < 0) name = 'superposition';
+      document.documentElement.dataset.theme = name;
+      try { localStorage.setItem('qm_theme', name); } catch (e) {}
+      document.querySelectorAll('[data-theme-btn]').forEach(function (b) {
+        b.classList.toggle('active', b.dataset.themeBtn === name);
+      });
+    }
+    document.querySelectorAll('.nav-theme [data-theme-btn]').forEach(function (b) {
+      b.addEventListener('click', function () { set(b.dataset.themeBtn); });
+    });
+    var cur = document.documentElement.dataset.theme;
+    try { cur = cur || localStorage.getItem('qm_theme'); } catch (e) {}
+    set(cur || 'superposition');
+  })();
+</script>
 
 <style>
   .main-navbar {
@@ -137,6 +169,25 @@ const { activePage = 'home' } = Astro.props;
     border: 1px solid rgba(0, 240, 255, 0.3);
     box-shadow: 0 0 10px rgba(0, 240, 255, 0.2);
   }
+
+  .nav-theme {
+    display: flex;
+    gap: 6px;
+    padding: 5px 8px;
+    background: var(--panel);
+    border: 2px solid var(--border);
+    border-radius: 6px;
+  }
+  .nav-theme-swatch {
+    width: 18px;
+    height: 18px;
+    padding: 0;
+    border: 2px solid var(--border);
+    border-radius: 3px;
+    cursor: pointer;
+  }
+  .nav-theme-swatch:hover { border-color: var(--text); }
+  .nav-theme-swatch.active { border-color: var(--text); box-shadow: 0 0 0 2px var(--text); }
 
   .nav-engine-status {
     display: flex;

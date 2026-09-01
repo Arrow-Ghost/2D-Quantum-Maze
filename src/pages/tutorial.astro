@@ -176,8 +176,22 @@ import '../styles/animations.css';
 
   <script>
     import { quantumClient } from '../lib/api/quantumClient';
+    import { QuantumSim } from '../lib/game/quantumSim';
 
     document.addEventListener('DOMContentLoaded', () => {
+      async function simulateCircuit(numQubits: number, gates: { gate: string; target: number; control?: number }[]) {
+        try {
+          const res = await quantumClient.executeArbitraryCircuit(numQubits, gates);
+          return res.state_info.dirac_notation;
+        } catch {
+          const sim = new QuantumSim(numQubits);
+          for (const g of gates) {
+            sim.gate(g.gate, g.target, g.control ?? null);
+          }
+          return sim.stateInfo().dirac_notation;
+        }
+      }
+
       // Demo H Gate
       let hActive = false;
       const btnDemoH = document.getElementById('btnDemoH');
@@ -186,13 +200,9 @@ import '../styles/animations.css';
       btnDemoH?.addEventListener('click', async () => {
         hActive = !hActive;
         const gates = hActive ? [{ gate: 'H', target: 0 }] : [];
-        try {
-          const res = await quantumClient.executeArbitraryCircuit(1, gates);
-          if (demoHState) demoHState.textContent = res.state_info.dirac_notation;
-          btnDemoH.textContent = hActive ? 'Reset |0⟩ ↺' : 'Apply H Gate ⚡';
-        } catch (e) {
-          console.error(e);
-        }
+        const dirac = await simulateCircuit(1, gates);
+        if (demoHState) demoHState.textContent = dirac;
+        btnDemoH.textContent = hActive ? 'Reset |0⟩ ↺' : 'Apply H Gate ⚡';
       });
 
       // Demo X Gate
@@ -203,13 +213,9 @@ import '../styles/animations.css';
       btnDemoX?.addEventListener('click', async () => {
         xActive = !xActive;
         const gates = xActive ? [{ gate: 'X', target: 0 }] : [];
-        try {
-          const res = await quantumClient.executeArbitraryCircuit(1, gates);
-          if (demoXState) demoXState.textContent = res.state_info.dirac_notation;
-          btnDemoX.textContent = xActive ? 'Reset |0⟩ ↺' : 'Apply X Gate ⚡';
-        } catch (e) {
-          console.error(e);
-        }
+        const dirac = await simulateCircuit(1, gates);
+        if (demoXState) demoXState.textContent = dirac;
+        btnDemoX.textContent = xActive ? 'Reset |0⟩ ↺' : 'Apply X Gate ⚡';
       });
 
       // Demo Bell State
@@ -225,13 +231,9 @@ import '../styles/animations.css';
               { gate: 'CNOT', target: 1, control: 0 },
             ]
           : [];
-        try {
-          const res = await quantumClient.executeArbitraryCircuit(2, gates);
-          if (demoBellState) demoBellState.textContent = res.state_info.dirac_notation;
-          btnDemoBell.textContent = bellActive ? 'Reset |00⟩ ↺' : 'Create Bell Pair ⚡';
-        } catch (e) {
-          console.error(e);
-        }
+        const dirac = await simulateCircuit(2, gates);
+        if (demoBellState) demoBellState.textContent = dirac;
+        btnDemoBell.textContent = bellActive ? 'Reset |00⟩ ↺' : 'Create Bell Pair ⚡';
       });
     });
   </script>

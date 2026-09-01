@@ -136,6 +136,16 @@ export interface StateInfo {
   purity: number;
 }
 
+export interface ExitValidationResult {
+  satisfied: boolean;
+  reason: string;
+  target_qubit?: number;
+  required_state?: number;
+  required_prob?: number;
+  current_probability: number;
+  state_info?: StateInfo;
+}
+
 export interface GateEntry {
   id: string;
   gate: string;
@@ -152,6 +162,7 @@ export interface LevelData {
   subtitle: string;
   briefing: string;
   quantumConcept: string;
+  hint?: string;
   difficulty: 'EASY' | 'NORMAL' | 'EXPERT';
   rows: number; // Fixed grid rows
   cols: number; // Fixed grid columns
@@ -168,6 +179,7 @@ export interface LevelData {
   initialGates: { gate: string; target: number; control?: number }[];
   allowedGates: string[];
   initialEnergy: number;
+  moveEnergyCost?: number; // QE drained per step (default 2)
   measurementBudget: number;
   targetTimeSeconds: number;
   scoreMultiplier: number;

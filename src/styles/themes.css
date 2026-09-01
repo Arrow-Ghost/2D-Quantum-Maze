@@ -1,0 +1,182 @@
+/* ============================================================================
+   Quantum Maze - theme system + retro-arcade skin.
+
+   Five selectable themes (data-theme on <html>): superposition, entangled,
+   collapse, phase, ground. Each only re-tints accent + board colours; the
+   layout and chunky arcade styling are shared.
+
+   Selectors are prefixed with `html` / `html:root` so these rules reliably win
+   over global.css regardless of stylesheet bundle order.
+   ============================================================================ */
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+html:root {
+  /* Neutral shell (shared by every theme) */
+  --bg: #0b0b10;
+  --bg-2: #121219;
+  --panel: #16161f;
+  --panel-2: #1d1d28;
+  --border: #33333f;
+  --border-strong: #4a4a5a;
+  --text: #ecebf2;
+  --muted: #9a9aab;
+
+  --ok: #35d996;
+  --warn: #ffb638;
+  --danger: #ff5064;
+
+  /* Default accent = Superposition */
+  --accent: #a970ff;
+  --accent-2: #21e0c4;
+  --accent-ink: #12081f;
+
+  /* Board (canvas) palette */
+  --board-bg: #0c0a14;
+  --board-floor-a: #14121f;
+  --board-floor-b: #191527;
+  --board-grid: #2a2440;
+  --board-wall: #2c2552;
+  --board-wall-edge: #4c3c8c;
+  --board-player: #ffffff;
+
+  --font-arcade: 'Press Start 2P', 'JetBrains Mono', monospace;
+
+  /* --- Remap legacy variables so old components adopt the new skin --- */
+  --bg-primary: var(--bg);
+  --bg-secondary: var(--bg-2);
+  --bg-tertiary: var(--panel-2);
+  --bg-card: var(--panel);
+  --bg-card-hover: var(--panel-2);
+  --border-subtle: var(--border);
+  --border-active: var(--accent);
+  --border-glow: 0 0 0 2px var(--accent);
+  --quantum-cyan: var(--accent);
+  --quantum-cyan-glow: transparent;
+  --quantum-emerald: var(--ok);
+  --quantum-emerald-glow: transparent;
+  --quantum-purple: var(--accent);
+  --quantum-magenta: var(--accent-2);
+  --quantum-amber: var(--warn);
+  --quantum-crimson: var(--danger);
+  --glass-blur: blur(0);
+  --glass-shadow: 4px 4px 0 rgba(0, 0, 0, 0.5);
+}
+
+html:root[data-theme='entangled'] {
+  --accent: #1fe0c8;
+  --accent-2: #7fd0ff;
+  --accent-ink: #04201d;
+  --board-bg: #07130f;
+  --board-floor-a: #0d1a17;
+  --board-floor-b: #11211d;
+  --board-grid: #1d4038;
+  --board-wall: #17463c;
+  --board-wall-edge: #2f8a76;
+}
+
+html:root[data-theme='collapse'] {
+  --accent: #ff5064;
+  --accent-2: #ffa14d;
+  --accent-ink: #230608;
+  --board-bg: #140809;
+  --board-floor-a: #1e0f10;
+  --board-floor-b: #241314;
+  --board-grid: #4a2327;
+  --board-wall: #55232a;
+  --board-wall-edge: #9c3a44;
+}
+
+html:root[data-theme='phase'] {
+  --accent: #ffb638;
+  --accent-2: #ffe08a;
+  --accent-ink: #221703;
+  --board-bg: #130f05;
+  --board-floor-a: #1c160a;
+  --board-floor-b: #221b0d;
+  --board-grid: #493a17;
+  --board-wall: #4f3f14;
+  --board-wall-edge: #9c7d2e;
+}
+
+html:root[data-theme='ground'] {
+  --accent: #d7d7e2;
+  --accent-2: #8fb8ff;
+  --accent-ink: #101014;
+  --board-bg: #0b0b0d;
+  --board-floor-a: #141418;
+  --board-floor-b: #191920;
+  --board-grid: #2e2e38;
+  --board-wall: #2b2b34;
+  --board-wall-edge: #55555f;
+}
+
+/* ============================ Retro-arcade skin ============================ */
+
+html body {
+  background: var(--bg);
+  background-image: none;
+  color: var(--text);
+}
+
+html h1, html h2, html h3, html h4, html h5, html h6 { color: var(--text); }
+
+html .glass-panel {
+  background: var(--panel);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  border: 2px solid var(--border);
+  border-radius: 6px;
+  box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.5);
+}
+html .glass-panel:hover { border-color: var(--border-strong); }
+html .glass-panel.active-glow { border-color: var(--accent); }
+
+html .btn-quantum {
+  background: var(--accent);
+  border: 2px solid var(--text);
+  border-radius: 4px;
+  color: var(--accent-ink);
+  font-family: var(--font-mono);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.6);
+  transition: transform 0.06s ease, box-shadow 0.06s ease;
+}
+html .btn-quantum:hover { transform: translate(-1px, -1px); }
+html .btn-quantum:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 rgba(0, 0, 0, 0.6); }
+html .btn-quantum:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+html .btn-quantum-secondary {
+  background: var(--panel-2);
+  border: 2px solid var(--border);
+  border-radius: 4px;
+  color: var(--text);
+  font-family: var(--font-mono);
+  transition: transform 0.06s ease, border-color 0.15s ease;
+}
+html .btn-quantum-secondary:hover { color: var(--text); background: var(--panel-2); border-color: var(--accent); }
+html .btn-quantum-secondary:active { transform: translate(1px, 1px); }
+
+html .quantum-badge {
+  border-radius: 3px;
+  border: 1px solid currentColor;
+  text-transform: uppercase;
+  font-family: var(--font-mono);
+  background: transparent;
+}
+html .badge-cyan { color: var(--accent); border-color: var(--accent); }
+html .badge-emerald { color: var(--ok); border-color: var(--ok); }
+html .badge-amber { color: var(--warn); border-color: var(--warn); }
+html .badge-crimson { color: var(--danger); border-color: var(--danger); }
+html .badge-purple { color: var(--accent); border-color: var(--accent); }
+
+html .modal-overlay { background: rgba(6, 6, 10, 0.88); backdrop-filter: none; -webkit-backdrop-filter: none; }
+html .modal-card {
+  background: var(--panel);
+  border: 3px solid var(--accent);
+  border-radius: 8px;
+  box-shadow: 8px 8px 0 rgba(0, 0, 0, 0.6);
+}
+
+html ::-webkit-scrollbar-thumb { background: var(--border-strong); }
