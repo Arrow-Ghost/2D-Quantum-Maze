@@ -28,42 +28,42 @@
     </div>
 
     <!-- Performance Breakdown Grid -->
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-family: var(--font-mono); font-size: 12px; background: rgba(0,0,0,0.3); padding: 12px; border-radius: 8px;">
+    <div class="modal-stats">
       <div>
         <span style="color: #64748b;">Elapsed Time:</span>
-        <span id="victoryTime" style="color: #f1f5f9; font-weight: 600; float: right;">00:34.2</span>
+        <span id="victoryTime" style="color: #f1f5f9; font-weight: 600;">00:34.2</span>
       </div>
       <div>
         <span style="color: #64748b;">Time Bonus:</span>
-        <span id="victoryTimeBonus" style="color: var(--quantum-emerald); font-weight: 600; float: right;">+420</span>
+        <span id="victoryTimeBonus" style="color: var(--quantum-emerald); font-weight: 600;">+420</span>
       </div>
       <div>
         <span style="color: #64748b;">Gates Used:</span>
-        <span id="victoryGatesUsed" style="color: #f1f5f9; font-weight: 600; float: right;">2</span>
+        <span id="victoryGatesUsed" style="color: #f1f5f9; font-weight: 600;">2</span>
       </div>
       <div>
         <span style="color: #64748b;">Quantum Efficiency:</span>
-        <span id="victoryEfficiency" style="color: var(--quantum-cyan); font-weight: 600; float: right;">+480</span>
+        <span id="victoryEfficiency" style="color: var(--quantum-cyan); font-weight: 600;">+480</span>
       </div>
       <div>
         <span style="color: #64748b;">Exit Probability:</span>
-        <span id="victoryProbability" style="color: #f1f5f9; font-weight: 600; float: right;">100%</span>
+        <span id="victoryProbability" style="color: #f1f5f9; font-weight: 600;">100%</span>
       </div>
       <div>
         <span style="color: #64748b;">Energy Remaining:</span>
-        <span id="victoryEnergy" style="color: #f1f5f9; font-weight: 600; float: right;">85 QE</span>
+        <span id="victoryEnergy" style="color: #f1f5f9; font-weight: 600;">85 QE</span>
       </div>
     </div>
 
     <!-- Action Buttons -->
-    <div style="display: flex; gap: 10px; margin-top: 8px;">
-      <button id="btnReplayLevel" class="btn-quantum-secondary" style="flex: 1;">
+    <div class="modal-actions" style="margin-top: 8px;">
+      <button id="btnReplayLevel" class="btn-quantum-secondary">
         Replay Sector
       </button>
-      <a href="/levels" class="btn-quantum-secondary" style="flex: 1; text-align: center;">
+      <a href="/levels" class="btn-quantum-secondary" style="text-align: center;">
         Sector Select
       </a>
-      <button id="btnNextLevel" class="btn-quantum" style="flex: 1.5;">
+      <button id="btnNextLevel" class="btn-quantum" style="flex-grow: 1.5;">
         Next Sector ➔
       </button>
     </div>
