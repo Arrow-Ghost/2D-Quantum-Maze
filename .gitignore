@@ -4,6 +4,7 @@ node_modules/
 
 # Production build outputs
 dist/
+dist-itch/
 .astro/
 
 # Python Virtual Environments & Cache

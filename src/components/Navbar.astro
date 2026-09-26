@@ -214,5 +214,29 @@ import '../styles/themes.css';
     .brand-sub, .nav-engine-status {
       display: none;
     }
+    /* Links move to their own row and scroll sideways instead of overflowing. */
+    .main-navbar {
+      flex-wrap: wrap;
+      gap: 8px 12px;
+      padding: 8px 12px;
+    }
+    .nav-links {
+      order: 3;
+      flex: 1 1 100%;
+      overflow-x: auto;
+      scrollbar-width: none;
+      gap: 4px;
+    }
+    .nav-links::-webkit-scrollbar { display: none; }
+    .nav-item {
+      flex: 0 0 auto;
+      padding: 5px 10px;
+      font-size: 12px;
+    }
+  }
+  @media (max-width: 380px) {
+    .brand-title { font-size: 14px; }
+    .nav-theme { gap: 4px; padding: 4px 6px; }
+    .nav-theme-swatch { width: 16px; height: 16px; }
   }
 </style>

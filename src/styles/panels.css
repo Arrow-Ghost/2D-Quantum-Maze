@@ -1,0 +1,93 @@
+/* Shared quantum-readout panels used by the Lab and Tutorial pages
+   (statevector, probability bars, Dirac notation, ASCII circuit).
+   Colours come from the theme tokens in themes.css. */
+
+.state-panel {
+  padding: 14px;
+  font-family: var(--font-mono);
+}
+
+.panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.panel-title {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+  text-transform: uppercase;
+}
+
+.dirac-formula {
+  background: var(--bg);
+  border: 2px solid var(--border);
+  border-radius: 4px;
+  padding: 10px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--accent);
+  word-break: break-all;
+  margin-bottom: 12px;
+}
+
+.prob-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  font-size: 12px;
+}
+
+.prob-label {
+  width: 40px;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.prob-bar-track {
+  flex: 1;
+  height: 10px;
+  background: var(--bg);
+  border: 2px solid var(--border);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.prob-bar-fill {
+  height: 100%;
+  background: var(--accent);
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.prob-value {
+  width: 45px;
+  text-align: right;
+  color: var(--text);
+  font-weight: 600;
+}
+
+.circuit-container {
+  padding: 14px;
+}
+
+.ascii-circuit {
+  background: var(--bg);
+  border: 2px solid var(--border);
+  border-radius: 4px;
+  padding: 12px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--accent-2);
+  white-space: pre;
+  overflow-x: auto;
+}

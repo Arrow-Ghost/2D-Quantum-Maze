@@ -14,7 +14,7 @@ export const LEVELS: LevelData[] = [
     title: 'Superposition',
     subtitle: 'The Hadamard gate',
     briefing:
-      'Reach Checkpoint Alpha to bring the terminal online, then apply a Hadamard gate to put q0 into a superposition. The exit opens at 45% or more.',
+      'Reach Checkpoint Alpha to bring the terminal online, then apply a Hadamard gate to put q0 into a superposition. The exit opens at 40% or more.',
     quantumConcept:
       'The Hadamard gate turns |0⟩ into an equal superposition (|0⟩+|1⟩)/√2 — a 50/50 chance of measuring 0 or 1.',
     hint: 'Open the terminal and apply H to q0. That alone reaches ~50%.',
@@ -31,7 +31,7 @@ export const LEVELS: LevelData[] = [
       requiredState: 1,
       requiredProbability: 0.4,
       conditionType: 'probability_threshold',
-      description: 'Exit needs q0 probability of |1⟩ ≥ 45% and Checkpoint Alpha active.',
+      description: 'Exit needs q0 probability of |1⟩ ≥ 40% and Checkpoint Alpha active.',
     },
     checkpoints: [
       { id: 'cp-01-a', r: 2, c: 8, label: 'Checkpoint Alpha', activated: false, requiredForTerminal: true },

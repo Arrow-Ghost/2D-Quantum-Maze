@@ -88,23 +88,52 @@ export class MazeRenderer {
     };
   }
 
-  // Space kept clear on the right for the quantum readout panel, and on the
-  // bottom for the theme dock / help button, so the board never hides behind UI.
-  private reserveRight = 0;
-  private reserveBottom = 0;
+  // Layout in CSS pixels, recomputed every frame from the canvas box.
+  private cssW = 0;
+  private cssH = 0;
+  private ox = 0;
+  private oy = 0;
+  private rows = 1;
+  private cols = 1;
+  /** Stroke width scaled to the tile size so tiny boards don't look smeared. */
+  private lw = 2;
 
-  /** Resize the backing store to the element's box and size tiles to fit. */
+  /**
+   * Size the backing store to the canvas box (times devicePixelRatio for crisp
+   * lines on high-DPI screens) and pick the largest tile that fits the whole maze.
+   * The board has its own layout cell, so nothing overlays it - no reserves needed.
+   */
   public fit(rows: number, cols: number) {
     const rect = this.canvas.getBoundingClientRect();
-    const w = Math.max(320, Math.floor(rect.width));
-    const h = Math.max(240, Math.floor(rect.height));
-    if (this.canvas.width !== w) this.canvas.width = w;
-    if (this.canvas.height !== h) this.canvas.height = h;
-    this.reserveRight = w > 760 ? 262 : 0;
-    this.reserveBottom = 52;
-    const availW = w - this.reserveRight - 24;
-    const availH = h - this.reserveBottom - 24;
-    this.tileSize = Math.max(14, Math.floor(Math.min(availW / cols, availH / rows)));
+    const w = Math.max(1, Math.floor(rect.width));
+    const h = Math.max(1, Math.floor(rect.height));
+    const dpr = Math.min(2, window.devicePixelRatio || 1);
+    const bw = Math.round(w * dpr);
+    const bh = Math.round(h * dpr);
+    if (this.canvas.width !== bw) this.canvas.width = bw;
+    if (this.canvas.height !== bh) this.canvas.height = bh;
+    this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    this.cssW = w;
+    this.cssH = h;
+    this.rows = rows;
+    this.cols = cols;
+    const pad = Math.min(w, h) < 360 ? 4 : 12;
+    this.tileSize = Math.max(4, Math.floor(Math.min((w - pad * 2) / cols, (h - pad * 2) / rows)));
+    this.lw = Math.max(1, Math.min(3, Math.round(this.tileSize / 14)));
+    this.ox = Math.floor((w - cols * this.tileSize) / 2);
+    this.oy = Math.floor((h - rows * this.tileSize) / 2);
+  }
+
+  /** Maze cell under a client (viewport) point, or null if it's off the board. */
+  public cellAt(clientX: number, clientY: number): { r: number; c: number } | null {
+    const rect = this.canvas.getBoundingClientRect();
+    const x = clientX - rect.left - this.ox;
+    const y = clientY - rect.top - this.oy;
+    const c = Math.floor(x / this.tileSize);
+    const r = Math.floor(y / this.tileSize);
+    if (r < 0 || r >= this.rows || c < 0 || c >= this.cols) return null;
+    return { r, c };
   }
 
   // Legacy no-ops kept so callers don't break.
@@ -129,21 +158,20 @@ export class MazeRenderer {
     time: number
   ) {
     const ctx = this.ctx;
-    const t = this.tileSize;
     const p = this.palette;
 
     this.fit(rows, cols);
+    const t = this.tileSize;
+    const e = Math.max(1, Math.round(t / 12)); // wall edge highlight thickness
 
     ctx.fillStyle = p.bg;
-    ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+    ctx.fillRect(0, 0, this.cssW, this.cssH);
 
     const mazeW = cols * t;
     const mazeH = rows * t;
-    const ox = Math.floor((this.canvas.width - this.reserveRight - mazeW) / 2);
-    const oy = Math.floor((this.canvas.height - this.reserveBottom - mazeH) / 2);
 
     ctx.save();
-    ctx.translate(ox, oy);
+    ctx.translate(this.ox, this.oy);
 
     // Floor
     for (let r = 0; r < rows; r++) {
@@ -161,13 +189,13 @@ export class MazeRenderer {
       ctx.fillStyle = p.wall;
       ctx.fillRect(x, y, t, t);
       ctx.fillStyle = p.wallEdge;
-      if (!wallSet.has(`${w.r - 1},${w.c}`)) ctx.fillRect(x, y, t, 3);
-      if (!wallSet.has(`${w.r},${w.c - 1}`)) ctx.fillRect(x, y, 3, t);
+      if (!wallSet.has(`${w.r - 1},${w.c}`)) ctx.fillRect(x, y, t, e);
+      if (!wallSet.has(`${w.r},${w.c - 1}`)) ctx.fillRect(x, y, e, t);
     }
 
     // Board frame
     ctx.strokeStyle = p.grid;
-    ctx.lineWidth = 2;
+    ctx.lineWidth = Math.max(1, this.lw - 1);
     ctx.strokeRect(1, 1, mazeW - 2, mazeH - 2);
 
     energyCells.forEach((cell) => {
@@ -208,7 +236,7 @@ export class MazeRenderer {
     const { x, y } = this.center(o, t);
     ctx.save();
     ctx.strokeStyle = this.palette.accent2;
-    ctx.lineWidth = 2;
+    ctx.lineWidth = Math.max(1, this.lw - 1);
     ctx.strokeRect(x - t * 0.22, y - t * 0.22, t * 0.44, t * 0.44);
     ctx.fillStyle = this.palette.accent2;
     ctx.font = `bold ${Math.round(t * 0.24)}px "JetBrains Mono", monospace`;
@@ -225,7 +253,7 @@ export class MazeRenderer {
     const pulse = cp.activated ? 1 : Math.sin(time * 4) * 0.12 + 0.88;
     ctx.save();
     ctx.strokeStyle = col;
-    ctx.lineWidth = 3;
+    ctx.lineWidth = this.lw;
     ctx.strokeRect(x - t * 0.3 * pulse, y - t * 0.3 * pulse, t * 0.6 * pulse, t * 0.6 * pulse);
     ctx.fillStyle = col;
     ctx.font = `bold ${Math.round(t * 0.34)}px "JetBrains Mono", monospace`;
@@ -244,14 +272,14 @@ export class MazeRenderer {
     ctx.fillStyle = ready ? 'rgba(0,0,0,0.35)' : 'transparent';
     ctx.fillRect(x - t * 0.3, y - t * 0.3, t * 0.6, t * 0.6);
     ctx.strokeStyle = col;
-    ctx.lineWidth = 3;
+    ctx.lineWidth = this.lw;
     ctx.strokeRect(x - t * 0.3, y - t * 0.3, t * 0.6, t * 0.6);
     if (ready) {
       ctx.save();
       ctx.translate(x, y);
       ctx.rotate(time * 1.6);
       ctx.strokeStyle = this.palette.accent2;
-      ctx.lineWidth = 2;
+      ctx.lineWidth = Math.max(1, this.lw - 1);
       ctx.strokeRect(-t * 0.12, -t * 0.12, t * 0.24, t * 0.24);
       ctx.restore();
     }
@@ -270,13 +298,13 @@ export class MazeRenderer {
     ctx.save();
     const pulse = Math.sin(time * 5) * 0.12 + 0.88;
     ctx.strokeStyle = col;
-    ctx.lineWidth = 3;
+    ctx.lineWidth = this.lw;
     ctx.strokeRect(x - t * 0.36 * pulse, y - t * 0.36 * pulse, t * 0.72 * pulse, t * 0.72 * pulse);
     ctx.save();
     ctx.translate(x, y);
     ctx.rotate(time * (unlocked ? 2.4 : 0.8));
     ctx.strokeStyle = col;
-    ctx.lineWidth = 2;
+    ctx.lineWidth = Math.max(1, this.lw - 1);
     ctx.strokeRect(-t * 0.18, -t * 0.18, t * 0.36, t * 0.36);
     ctx.restore();
     ctx.fillStyle = col;
@@ -296,7 +324,7 @@ export class MazeRenderer {
     ctx.save();
     ctx.fillStyle = this.palette.player;
     ctx.strokeStyle = this.palette.accent;
-    ctx.lineWidth = 3;
+    ctx.lineWidth = this.lw;
     ctx.beginPath();
     ctx.arc(x, y, t * 0.28, 0, Math.PI * 2);
     ctx.fill();

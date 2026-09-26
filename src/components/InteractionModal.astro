@@ -10,11 +10,11 @@
     </div>
 
     <p id="interactModalSubtitle" style="font-size: 13px; color: #94a3b8;">
-      Select a quantum operation to apply to the active circuit via Qiskit.
+      Pick a gate and the qubit to apply it to.
     </p>
 
     <!-- Qubit Selectors -->
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+    <div class="modal-fields">
       <div>
         <label class="hud-label">Target Qubit:</label>
         <select id="selectTargetQubit" class="btn-quantum-secondary" style="width: 100%; margin-top: 4px; padding: 8px;">
@@ -51,7 +51,7 @@
     </div>
 
     <!-- Action Buttons -->
-    <div style="display: flex; gap: 12px; justify-content: flex-end; margin-top: 8px;">
+    <div class="modal-actions" style="margin-top: 8px;">
       <button id="btnCancelInteract" class="btn-quantum-secondary">Cancel</button>
       <button id="btnExecuteGate" class="btn-quantum">
         Execute Operation ⚡

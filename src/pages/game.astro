@@ -15,7 +15,7 @@ import '../styles/animations.css';
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>QUANTUM MAZE</title>
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   <script is:inline>
@@ -23,15 +23,17 @@ import '../styles/animations.css';
       var t = localStorage.getItem('qm_theme');
       if (t) document.documentElement.dataset.theme = t;
     } catch (e) {}
+    // Touch devices get on-screen controls; set before first paint to avoid a layout jump.
+    if (window.matchMedia && matchMedia('(pointer: coarse)').matches) document.documentElement.classList.add('touch');
   </script>
 </head>
-<body>
+<body class="game-page">
   <div class="game-shell">
-    <!-- Top bar: identity, objective, vitals -->
+    <!-- Top bar: identity, objective, vitals. Wraps to two rows on narrow frames. -->
     <header class="topbar">
       <div class="topbar-left">
-        <a href="/levels" class="topbar-back" title="Back to sectors">‹</a>
-        <div>
+        <a href="/levels" class="topbar-back" title="Back to sectors" aria-label="Back to sectors">‹</a>
+        <div class="topbar-id">
           <div class="topbar-sector">SECTOR <span id="hudLevelNumber">01</span></div>
           <div class="topbar-title" id="hudLevelTitle">Superposition</div>
         </div>
@@ -43,77 +45,92 @@ import '../styles/animations.css';
       </div>
 
       <div class="topbar-right">
-        <div class="vital"><span class="vital-k">TIME</span><span class="vital-v" id="hudTime">00:00.0</span></div>
-        <div class="vital"><span class="vital-k">MOVES</span><span class="vital-v" id="hudMoveCount">0</span></div>
+        <div class="vital vital-time"><span class="vital-k">TIME</span><span class="vital-v" id="hudTime">00:00.0</span></div>
+        <div class="vital vital-moves"><span class="vital-k">MOVES</span><span class="vital-v" id="hudMoveCount">0</span></div>
         <div class="vital vital-energy">
           <span class="vital-k">ENERGY</span>
           <span class="energy-track"><span class="energy-fill" id="hudEnergyFill" style="width:100%"></span></span>
           <span class="vital-v" id="hudEnergyValue">100</span>
         </div>
-        <button id="btnPause" class="btn-quantum-secondary topbar-pause">❚❚ ESC</button>
+        <button id="btnFullscreen" class="icon-btn" title="Fullscreen (F)" aria-label="Toggle fullscreen" hidden>⛶</button>
+        <button id="btnPause" class="icon-btn" title="Pause (Esc)" aria-label="Pause">❚❚</button>
       </div>
     </header>
 
-    <!-- Board -->
-    <div class="board-area">
-      <canvas id="gameCanvas"></canvas>
+    <!-- Play area: board + side panel (a column in landscape, a strip below in portrait). -->
+    <main class="play">
+      <div class="board-area" id="boardArea">
+        <canvas id="gameCanvas" aria-label="Maze board"></canvas>
+        <div id="gameToast" class="message-toast toast-info" style="display:none;">Ready.</div>
+        <button id="rotateHint" class="rotate-hint" type="button">↻ Rotate for a bigger maze</button>
+      </div>
 
-      <div id="gameToast" class="message-toast toast-info" style="display:none;">Ready.</div>
-
-      <!-- Compact quantum readout -->
       <aside class="qpanel" id="qpanel">
-        <div class="qpanel-exit">
-          <span class="qpanel-exit-k">EXIT</span>
-          <span class="qpanel-exit-v" id="hudExitProb">50%</span>
-          <span class="quantum-badge badge-amber" id="hudExitStatus">LOCKED</span>
-        </div>
-
-        <div class="qbar">
-          <div class="qbar-head">
-            <span id="qTargetLabel">q0 → |1⟩</span>
-            <span id="qTargetPct">50%</span>
+        <section class="qpanel-readout">
+          <div class="qpanel-exit">
+            <span class="qpanel-exit-k">EXIT</span>
+            <span class="qpanel-exit-v" id="hudExitProb">50%</span>
+            <span class="quantum-badge badge-amber" id="hudExitStatus">LOCKED</span>
           </div>
-          <div class="qbar-track"><div class="qbar-fill" id="qTargetFill" style="width:50%"></div></div>
-          <div class="qbar-sub" id="quantumStatusLine">Superposition</div>
-        </div>
+          <div class="qbar">
+            <div class="qbar-head">
+              <span id="qTargetLabel">q0 → |1⟩</span>
+              <span id="qTargetPct">50%</span>
+            </div>
+            <div class="qbar-track"><div class="qbar-fill" id="qTargetFill" style="width:50%"></div></div>
+            <div class="qbar-sub" id="quantumStatusLine">Superposition</div>
+          </div>
+        </section>
 
-        <div class="qpanel-gates">
+        <section class="qpanel-gates">
           <span class="qpanel-k">TERMINAL</span>
           <div class="gate-row" id="gateRow"></div>
           <div class="qpanel-foot">
             <span id="measRow">Measurements 0/3</span>
             <span id="terminalHint">Reach checkpoint to unlock</span>
           </div>
-          <button id="btnOpenTerminalDirect" class="btn-quantum qpanel-open" disabled>OPEN TERMINAL [E]</button>
-        </div>
-      </aside>
+          <button id="btnOpenTerminalDirect" class="btn-quantum qpanel-open" disabled>OPEN TERMINAL</button>
+        </section>
 
-      <!-- Theme switcher, docked in the corner -->
-      <div class="theme-dock" role="group" aria-label="Theme">
-        <button class="theme-swatch" data-theme-btn="superposition" title="Superposition"></button>
-        <button class="theme-swatch" data-theme-btn="entangled" title="Entangled"></button>
-        <button class="theme-swatch" data-theme-btn="collapse" title="Collapse"></button>
-        <button class="theme-swatch" data-theme-btn="phase" title="Phase"></button>
-        <button class="theme-swatch" data-theme-btn="ground" title="Ground State"></button>
-      </div>
+        <!-- On-screen D-pad (touch devices). Hold a direction to keep walking. -->
+        <section class="dpad" id="dpad" aria-label="Movement controls">
+          <button class="dpad-btn dpad-up" data-dir="UP" aria-label="Up">▲</button>
+          <button class="dpad-btn dpad-left" data-dir="LEFT" aria-label="Left">◀</button>
+          <button class="dpad-btn dpad-mid" id="dpadAction" aria-label="Open terminal">E</button>
+          <button class="dpad-btn dpad-right" data-dir="RIGHT" aria-label="Right">▶</button>
+          <button class="dpad-btn dpad-down" data-dir="DOWN" aria-label="Down">▼</button>
+        </section>
 
-      <button id="btnHelp" class="help-fab" title="Help (H)">?</button>
-
-      <div id="helpOverlay" class="help-overlay" style="display:none;">
-        <div class="help-card">
-          <div class="help-head">
-            <span class="panel-title">How this sector works</span>
-            <button id="btnCloseHelp" class="btn-quantum-secondary" style="padding:2px 10px;">✕</button>
+        <footer class="qpanel-bar">
+          <div class="theme-dock" role="group" aria-label="Theme">
+            <button class="theme-swatch" data-theme-btn="superposition" title="Superposition" aria-label="Superposition theme"></button>
+            <button class="theme-swatch" data-theme-btn="entangled" title="Entangled" aria-label="Entangled theme"></button>
+            <button class="theme-swatch" data-theme-btn="collapse" title="Collapse" aria-label="Collapse theme"></button>
+            <button class="theme-swatch" data-theme-btn="phase" title="Phase" aria-label="Phase theme"></button>
+            <button class="theme-swatch" data-theme-btn="ground" title="Ground State" aria-label="Ground State theme"></button>
           </div>
-          <p class="help-controls">Move <b>WASD</b> / arrows &nbsp;·&nbsp; Open terminal <b>E</b> &nbsp;·&nbsp; Pause <b>Esc</b> &nbsp;·&nbsp; Help <b>H</b></p>
-          <p class="help-controls">Every step drains energy and reshuffles the maze. The exit readout fluctuates while the qubit is in superposition — it locks once you hit the target.</p>
-          <p class="help-k">Objective</p>
-          <p id="helpObjective" class="help-t"></p>
-          <p class="help-k">The idea</p>
-          <p id="helpConcept" class="help-t"></p>
-          <p class="help-k">Hint</p>
-          <p id="helpHint" class="help-t"></p>
+          <button id="btnHelp" class="icon-btn" title="Help (H)" aria-label="Help">?</button>
+        </footer>
+      </aside>
+    </main>
+
+    <div id="helpOverlay" class="help-overlay" style="display:none;">
+      <div class="help-card">
+        <div class="help-head">
+          <span class="panel-title">How this sector works</span>
+          <button id="btnCloseHelp" class="btn-quantum-secondary" style="padding:2px 10px;" aria-label="Close help">✕</button>
         </div>
+        <p class="help-controls">
+          <b>Keyboard:</b> move WASD / arrows · terminal E · pause Esc · help H · fullscreen F<br />
+          <b>Mouse / touch:</b> tap a square to step toward it, swipe, or use the D-pad
+        </p>
+        <p class="help-controls">Every step drains energy and reshuffles the maze. The exit readout fluctuates while the qubit is in superposition — it locks once you hit the target.</p>
+        <p class="help-k">Objective</p>
+        <p id="helpObjective" class="help-t"></p>
+        <p class="help-k">The idea</p>
+        <p id="helpConcept" class="help-t"></p>
+        <p class="help-k">Hint</p>
+        <p id="helpHint" class="help-t"></p>
       </div>
     </div>
 
@@ -209,6 +226,12 @@ import '../styles/animations.css';
       const helpObjective = $('helpObjective');
       const helpConcept = $('helpConcept');
       const helpHint = $('helpHint');
+
+      const boardArea = $('boardArea');
+      const btnFullscreen = $('btnFullscreen') as HTMLButtonElement;
+      const dpadAction = $('dpadAction');
+      const rotateHint = $('rotateHint');
+      const isTouch = () => document.documentElement.classList.contains('touch');
 
       let selectedModalGate = 'H';
       let toastTimeout: number | null = null;
@@ -315,7 +338,11 @@ import '../styles/animations.css';
 
         const unlocked = eng.terminals.some((t) => t.unlocked);
         if (measRow) measRow.textContent = `Measurements ${eng.measurementsUsed}/${lvl.measurementBudget}`;
-        if (terminalHint) terminalHint.textContent = unlocked ? 'Press [E] to open terminal' : 'Reach checkpoint to unlock';
+        if (terminalHint) {
+          terminalHint.textContent = !unlocked
+            ? 'Reach checkpoint to unlock'
+            : isTouch() ? 'Tap E or OPEN TERMINAL' : 'Press E to open terminal';
+        }
         if (btnOpenTerminalDirect) btnOpenTerminalDirect.disabled = !unlocked;
         if (gateRow) {
           gateRow.querySelectorAll('button').forEach((b) => ((b as HTMLButtonElement).disabled = !unlocked));
@@ -477,12 +504,58 @@ import '../styles/animations.css';
       btnHelp?.addEventListener('click', () => toggleHelp());
       btnCloseHelp?.addEventListener('click', () => toggleHelp(false));
 
+      // ---- Input: shared helpers ----
+      type Dir = 'UP' | 'DOWN' | 'LEFT' | 'RIGHT';
+      const shown = (el: HTMLElement | null) => !!el && el.style.display === 'flex';
+      const overlayOpen = () =>
+        [interactionModal, helpOverlay, pauseMenuModal, victoryModal, failureModal].some(shown);
+
+      function tryMove(dir: Dir) {
+        if (engine.status !== 'PLAYING' || overlayOpen()) return;
+        engine.movePlayer(dir);
+      }
+
+      function openTerminal() {
+        if (engine.status !== 'PLAYING' || overlayOpen()) return;
+        if (engine.terminals.some((t) => t.unlocked)) openInteractionModal();
+        else showToast('Reach the checkpoint to unlock the terminal.', 'warning');
+      }
+
+      // ---- Fullscreen (hidden where the host frame doesn't allow it) ----
+      const doc = document as any;
+      const canFullscreen = !!(document.fullscreenEnabled || doc.webkitFullscreenEnabled);
+      if (btnFullscreen) btnFullscreen.hidden = !canFullscreen;
+      function toggleFullscreen() {
+        if (!canFullscreen) return;
+        const active = document.fullscreenElement || doc.webkitFullscreenElement;
+        if (active) (document.exitFullscreen || doc.webkitExitFullscreen)?.call(document);
+        else {
+          const el = document.documentElement as any;
+          (el.requestFullscreen || el.webkitRequestFullscreen)?.call(el);
+        }
+      }
+      btnFullscreen?.addEventListener('click', toggleFullscreen);
+
+      // ---- Keyboard ----
+      const KEY_DIRS: Record<string, Dir> = {
+        w: 'UP', arrowup: 'UP', s: 'DOWN', arrowdown: 'DOWN',
+        a: 'LEFT', arrowleft: 'LEFT', d: 'RIGHT', arrowright: 'RIGHT',
+      };
       window.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape') {
-          if (interactionModal && interactionModal.style.display === 'flex') return closeInteractionModal();
-          if (helpOverlay && helpOverlay.style.display === 'flex') return toggleHelp(false);
-          if (pauseMenuModal && pauseMenuModal.style.display === 'flex') {
-            pauseMenuModal.style.display = 'none';
+        // Let form controls in the terminal dialog handle their own keys.
+        const tag = (e.target as HTMLElement)?.tagName;
+        if (tag === 'SELECT' || tag === 'INPUT' || tag === 'TEXTAREA') {
+          if (e.key === 'Escape') closeInteractionModal();
+          return;
+        }
+        const key = e.key.toLowerCase();
+
+        if (key === 'escape') {
+          if (shown(interactionModal)) return closeInteractionModal();
+          if (shown(helpOverlay)) return toggleHelp(false);
+          if (shown(victoryModal) || shown(failureModal)) return;
+          if (shown(pauseMenuModal)) {
+            pauseMenuModal!.style.display = 'none';
             engine.resumeGame();
           } else {
             engine.pauseGame();
@@ -490,21 +563,93 @@ import '../styles/animations.css';
           }
           return;
         }
-        if (e.key === '`' || e.key === '~') {
+        if (key === '`' || key === '~') {
           if (debugPanel) debugPanel.style.display = debugPanel.style.display === 'none' ? 'block' : 'none';
           return;
         }
-        if (e.key === 'h' || e.key === 'H') { toggleHelp(); return; }
-        if (engine.status !== 'PLAYING') return;
+        if (key === 'h') return toggleHelp();
+        if (key === 'f') return toggleFullscreen();
 
-        if (e.key === 'w' || e.key === 'W' || e.key === 'ArrowUp') engine.movePlayer('UP');
-        else if (e.key === 's' || e.key === 'S' || e.key === 'ArrowDown') engine.movePlayer('DOWN');
-        else if (e.key === 'a' || e.key === 'A' || e.key === 'ArrowLeft') engine.movePlayer('LEFT');
-        else if (e.key === 'd' || e.key === 'D' || e.key === 'ArrowRight') engine.movePlayer('RIGHT');
-        else if (e.key === 'e' || e.key === 'E' || e.key === ' ') {
-          if (engine.terminals.some((t) => t.unlocked)) openInteractionModal();
-          else showToast('Reach the checkpoint to unlock the terminal.', 'warning');
+        const dir = KEY_DIRS[key];
+        if (dir) {
+          e.preventDefault(); // keep arrow keys from scrolling a host page (e.g. itch.io)
+          tryMove(dir);
+        } else if (key === 'e' || key === ' ') {
+          e.preventDefault();
+          openTerminal();
         }
+      });
+
+      // ---- Mouse / touch on the board: swipe, or tap a square to step toward it ----
+      let press: { x: number; y: number; id: number } | null = null;
+      boardArea?.addEventListener('pointerdown', (e) => {
+        if (e.target !== canvas) return; // ignore taps on the toast / rotate hint
+        press = { x: e.clientX, y: e.clientY, id: e.pointerId };
+        try { boardArea.setPointerCapture(e.pointerId); } catch {}
+      });
+      boardArea?.addEventListener('pointercancel', () => (press = null));
+      boardArea?.addEventListener('pointerup', (e) => {
+        if (!press || press.id !== e.pointerId) return;
+        const dx = e.clientX - press.x;
+        const dy = e.clientY - press.y;
+        press = null;
+        if (Math.max(Math.abs(dx), Math.abs(dy)) > 24) {
+          tryMove(Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? 'RIGHT' : 'LEFT') : dy > 0 ? 'DOWN' : 'UP');
+          return;
+        }
+        const cell = renderer.cellAt(e.clientX, e.clientY);
+        if (!cell) return;
+        const dr = cell.r - engine.player.r;
+        const dc = cell.c - engine.player.c;
+        if (dr === 0 && dc === 0) return;
+        tryMove(Math.abs(dc) >= Math.abs(dr) ? (dc > 0 ? 'RIGHT' : 'LEFT') : dr > 0 ? 'DOWN' : 'UP');
+      });
+
+      // ---- On-screen D-pad: hold a direction to keep walking ----
+      let repeatTimer: number | null = null;
+      const stopRepeat = () => {
+        if (repeatTimer !== null) clearTimeout(repeatTimer);
+        repeatTimer = null;
+      };
+      document.querySelectorAll<HTMLElement>('.dpad-btn[data-dir]').forEach((btn) => {
+        const dir = btn.dataset.dir as Dir;
+        btn.addEventListener('pointerdown', (e) => {
+          e.preventDefault();
+          try { btn.setPointerCapture(e.pointerId); } catch {}
+          stopRepeat();
+          tryMove(dir);
+          const again = (delay: number) => {
+            repeatTimer = window.setTimeout(() => {
+              tryMove(dir);
+              again(140);
+            }, delay);
+          };
+          again(280);
+        });
+        ['pointerup', 'pointercancel', 'lostpointercapture'].forEach((ev) => btn.addEventListener(ev, stopRepeat));
+        btn.addEventListener('contextmenu', (e) => e.preventDefault());
+      });
+      dpadAction?.addEventListener('click', openTerminal);
+
+      // A touch on a device that didn't report a coarse pointer still gets the D-pad.
+      window.addEventListener(
+        'touchstart',
+        () => {
+          if (!isTouch()) {
+            document.documentElement.classList.add('touch');
+            updateUI(engine);
+          }
+        },
+        { once: true, passive: true }
+      );
+
+      // ---- Portrait hint for wide mazes on phones ----
+      try {
+        if (sessionStorage.getItem('qm_rotate_dismissed')) rotateHint?.remove();
+      } catch (e) {}
+      rotateHint?.addEventListener('click', () => {
+        rotateHint.remove();
+        try { sessionStorage.setItem('qm_rotate_dismissed', '1'); } catch (e) {}
       });
 
       // Render loop
