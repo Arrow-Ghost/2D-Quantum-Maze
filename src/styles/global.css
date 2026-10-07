@@ -145,6 +145,13 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 /* Badges */
+/* Inline SVG icons (replace emoji/dingbat glyphs) */
+.ico {
+  display: inline-block;
+  flex: none;
+  vertical-align: -0.125em;
+}
+
 .quantum-badge {
   display: inline-flex;
   align-items: center;

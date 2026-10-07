@@ -21,6 +21,33 @@ export function getInitialApiBaseUrl(): string {
   return 'http://127.0.0.1:8000';
 }
 
+/** True when a backend URL was set explicitly (settings page or build env). */
+function backendExplicitlyConfigured(): boolean {
+  if (typeof window !== 'undefined') {
+    try {
+      const stored = localStorage.getItem('quantum_api_base_url');
+      if (stored && stored.trim()) return true;
+    } catch { /* storage blocked */ }
+  }
+  return Boolean(typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.PUBLIC_API_BASE_URL);
+}
+
+function onLocalHost(): boolean {
+  if (typeof window === 'undefined') return false;
+  return ['localhost', '127.0.0.1', '[::1]'].includes(window.location.hostname);
+}
+
+/** fetch() that gives up after `ms` instead of hanging on an unreachable host. */
+async function fetchWithTimeout(url: string, init: RequestInit = {}, ms = 4000): Promise<Response> {
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), ms);
+  try {
+    return await fetch(url, { ...init, signal: ctrl.signal });
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 export const API_BASE_URL = getInitialApiBaseUrl();
 
 export interface InitializeResponse {
@@ -75,6 +102,7 @@ export interface StateResponse {
 
 export class QuantumClient {
   private baseUrl: string;
+  private availability: Promise<boolean> | null = null;
 
   constructor(baseUrl?: string) {
     this.baseUrl = baseUrl || getInitialApiBaseUrl();
@@ -89,11 +117,31 @@ export class QuantumClient {
     if (typeof window !== 'undefined') {
       localStorage.setItem('quantum_api_base_url', this.baseUrl);
     }
+    this.availability = null;
+  }
+
+  /**
+   * Resolves true only if the Qiskit backend answers /health quickly.
+   * On a deployed site with no backend configured it resolves false without
+   * making any request, so pages never wait on an unreachable 127.0.0.1.
+   * The result is cached for the page's lifetime.
+   */
+  isBackendAvailable(timeoutMs = 1200): Promise<boolean> {
+    if (!this.availability) {
+      if (!backendExplicitlyConfigured() && !onLocalHost()) {
+        this.availability = Promise.resolve(false);
+      } else {
+        this.availability = fetchWithTimeout(`${this.baseUrl}/health`, {}, timeoutMs)
+          .then((res) => res.ok)
+          .catch(() => false);
+      }
+    }
+    return this.availability;
   }
 
   async checkHealth(): Promise<{ status: string; engine: string; qiskit_version: string }> {
     try {
-      const res = await fetch(`${this.baseUrl}/health`);
+      const res = await fetchWithTimeout(`${this.baseUrl}/health`, {}, 3000);
       if (!res.ok) {
         throw new Error(`Health check failed with status ${res.status}`);
       }
@@ -109,7 +157,7 @@ export class QuantumClient {
     initialGates: { gate: string; target: number; control?: number }[] = [],
     levelSeed: number = 42
   ): Promise<InitializeResponse> {
-    const res = await fetch(`${this.baseUrl}/quantum/initialize`, {
+    const res = await fetchWithTimeout(`${this.baseUrl}/quantum/initialize`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -141,7 +189,7 @@ export class QuantumClient {
     objects: [number, number][] = [],
     activeTargetCheckpoint?: [number, number]
   ): Promise<MoveResponse> {
-    const res = await fetch(`${this.baseUrl}/game/move`, {
+    const res = await fetchWithTimeout(`${this.baseUrl}/game/move`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -174,7 +222,7 @@ export class QuantumClient {
     control?: number | null,
     energyAvailable: number = 100
   ): Promise<GateResponse> {
-    const res = await fetch(`${this.baseUrl}/quantum/apply-gate`, {
+    const res = await fetchWithTimeout(`${this.baseUrl}/quantum/apply-gate`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -198,7 +246,7 @@ export class QuantumClient {
     target: number,
     energyAvailable: number = 100
   ): Promise<MeasureResponse> {
-    const res = await fetch(`${this.baseUrl}/quantum/measure`, {
+    const res = await fetchWithTimeout(`${this.baseUrl}/quantum/measure`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -216,7 +264,7 @@ export class QuantumClient {
   }
 
   async getState(sessionId: string): Promise<StateResponse> {
-    const res = await fetch(`${this.baseUrl}/quantum/state`, {
+    const res = await fetchWithTimeout(`${this.baseUrl}/quantum/state`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ session_id: sessionId }),
@@ -233,7 +281,7 @@ export class QuantumClient {
     sessionId: string,
     initialGates: { gate: string; target: number; control?: number }[] = []
   ): Promise<InitializeResponse> {
-    const res = await fetch(`${this.baseUrl}/quantum/reset`, {
+    const res = await fetchWithTimeout(`${this.baseUrl}/quantum/reset`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -256,7 +304,7 @@ export class QuantumClient {
     requiredProb: number = 0.8,
     requiredState: number = 1
   ): Promise<ExitValidationResult> {
-    const res = await fetch(`${this.baseUrl}/quantum/validate-exit`, {
+    const res = await fetchWithTimeout(`${this.baseUrl}/quantum/validate-exit`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -284,7 +332,7 @@ export class QuantumClient {
     state_info: StateInfo;
     ascii_diagram: string;
   }> {
-    const res = await fetch(`${this.baseUrl}/quantum/execute-circuit`, {
+    const res = await fetchWithTimeout(`${this.baseUrl}/quantum/execute-circuit`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({

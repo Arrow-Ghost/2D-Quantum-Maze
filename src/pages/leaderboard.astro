@@ -33,7 +33,7 @@ import '../styles/animations.css';
       </div>
 
       <button id="btnClearRecords" class="btn-quantum-secondary" style="padding: 6px 12px; font-size: 11px; color: #f87171;">
-        Clear Local Records ✕
+        Clear Local Records
       </button>
     </div>
 
@@ -109,7 +109,7 @@ import '../styles/animations.css';
             const timeStr = `${mins.toString().padStart(2, '0')}:${secs.padStart(4, '0')}`;
             const dateStr = new Date(rec.date).toLocaleDateString();
 
-            const rankBadge = idx === 0 ? '🥇 1' : (idx === 1 ? '🥈 2' : (idx === 2 ? '🥉 3' : (idx + 1).toString()));
+            const rankBadge = `<span class="rank-badge${idx < 3 ? ` rank-${idx + 1}` : ''}">${idx + 1}</span>`;
 
             return `
               <tr>
@@ -133,6 +133,21 @@ import '../styles/animations.css';
   </script>
 
   <style>
+    :global(.rank-badge) {
+      display: inline-grid;
+      place-items: center;
+      min-width: 26px;
+      height: 26px;
+      padding: 0 6px;
+      border: 2px solid var(--border);
+      border-radius: 4px;
+      font-family: var(--font-mono);
+      color: var(--text);
+    }
+    :global(.rank-badge.rank-1) { border-color: var(--warn); color: var(--warn); }
+    :global(.rank-badge.rank-2) { border-color: var(--text); color: var(--text); }
+    :global(.rank-badge.rank-3) { border-color: var(--accent); color: var(--accent); }
+
     .records-container {
       max-width: 1060px;
       margin: 0 auto;

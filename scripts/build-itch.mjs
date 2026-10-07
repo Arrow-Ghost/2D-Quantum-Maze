@@ -27,7 +27,10 @@ execFileSync(process.execPath, [path.join(root, 'node_modules', 'astro', 'astro.
   stdio: 'inherit',
 });
 
-fs.rmSync(outDir, { recursive: true, force: true });
+// Replace only the build output; anything else in dist-itch/ (e.g. screenshots) is kept.
+fs.rmSync(site, { recursive: true, force: true });
+fs.rmSync(zipPath, { force: true });
+fs.mkdirSync(outDir, { recursive: true });
 fs.cpSync(dist, site, { recursive: true });
 
 const walk = (dir) =>
