@@ -19,7 +19,7 @@
   <div class="exit-convergence-display glass-panel">
     <!-- Live Convergence Progress Meter -->
     <div class="exit-vortex-header">
-      <div class="exit-portal-symbol">◉</div>
+      <div class="exit-portal-symbol" aria-hidden="true"><span class="exit-portal-ring"></span></div>
       <div class="exit-meter-meta">
         <span class="exit-meter-label">EXIT PORTAL COHERENCE</span>
         <div class="exit-large-prob" id="finalExitProb">96.4%</div>
@@ -97,6 +97,15 @@
     color: var(--quantum-emerald);
     text-shadow: 0 0 25px rgba(0, 245, 155, 0.8);
     animation: portalPulse 2.5s infinite ease-in-out;
+  }
+
+  .exit-portal-ring {
+    display: block;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: 4px solid currentColor;
+    background: radial-gradient(circle, currentColor 0 30%, transparent 32%);
   }
 
   @keyframes portalPulse {

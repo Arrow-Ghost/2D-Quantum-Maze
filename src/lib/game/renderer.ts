@@ -255,11 +255,30 @@ export class MazeRenderer {
     ctx.strokeStyle = col;
     ctx.lineWidth = this.lw;
     ctx.strokeRect(x - t * 0.3 * pulse, y - t * 0.3 * pulse, t * 0.6 * pulse, t * 0.6 * pulse);
-    ctx.fillStyle = col;
-    ctx.font = `bold ${Math.round(t * 0.34)}px "JetBrains Mono", monospace`;
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText(cp.activated ? '✓' : '⚑', x, y);
+    const s = t * 0.13;
+    ctx.lineWidth = Math.max(2, this.lw * 1.4);
+    ctx.lineCap = 'square';
+    ctx.lineJoin = 'miter';
+    ctx.beginPath();
+    if (cp.activated) {
+      // check mark
+      ctx.moveTo(x - s, y);
+      ctx.lineTo(x - s * 0.3, y + s * 0.75);
+      ctx.lineTo(x + s * 1.1, y - s * 0.8);
+      ctx.stroke();
+    } else {
+      // flag: pole plus a filled pennant
+      ctx.moveTo(x - s * 0.8, y + s * 1.1);
+      ctx.lineTo(x - s * 0.8, y - s * 1.1);
+      ctx.stroke();
+      ctx.fillStyle = col;
+      ctx.beginPath();
+      ctx.moveTo(x - s * 0.8, y - s * 1.1);
+      ctx.lineTo(x + s * 1.0, y - s * 0.55);
+      ctx.lineTo(x - s * 0.8, y);
+      ctx.closePath();
+      ctx.fill();
+    }
     ctx.restore();
   }
 

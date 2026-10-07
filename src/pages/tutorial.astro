@@ -19,294 +19,344 @@ import '../styles/animations.css';
 
   <main class="tutorial-container">
     <div class="tutorial-header">
-      <span class="quantum-badge badge-cyan" style="margin-bottom: 8px;">QUANTUM INFORMATION PROTOCOL</span>
-      <h1 style="font-size: 34px; color: #ffffff;">INTERACTIVE QUANTUM GUIDE</h1>
-      <p style="color: #94a3b8; font-size: 14px; max-width: 680px; margin: 0 auto;">
-        Master the fundamental principles of quantum computing behind Quantum Maze. Every module includes interactive live Qiskit simulations.
+      <span class="quantum-badge badge-cyan">QUANTUM GUIDE</span>
+      <h1>How the quantum part works</h1>
+      <p class="tutorial-intro">
+        Six short modules on the ideas behind Quantum Maze. Each demo runs a real statevector simulation
+        right in your browser, so press the buttons and watch the state change.
       </p>
     </div>
 
-    <!-- Guide Modules -->
     <div class="modules-stack">
-      <!-- 1. What is a Qubit? -->
+      <!-- 1. Qubit -->
       <section class="glass-panel module-card">
         <div class="module-number">MODULE 01</div>
-        <h2 class="module-title">What is a Qubit?</h2>
-        <div class="module-body">
-          <div class="module-text">
-            <p>
-              Unlike a classical bit which is strictly <strong>0</strong> or <strong>1</strong>, a quantum bit (<strong>qubit</strong>) exists as a linear superposition of both orthogonal basis states:
-            </p>
-            <div class="dirac-formula" style="margin: 12px 0;">|ψ⟩ = α|0⟩ + β|1⟩</div>
-            <p>
-              where α and β are complex probability amplitudes satisfying the normalization condition <strong>|α|² + |β|² = 1</strong>.
-            </p>
-            <div class="game-callout">
-              <strong>Game Mechanics:</strong> Every quantum door in the maze is governed by a qubit. State |0⟩ represents closed, while |1⟩ represents open.
-            </div>
+        <h2 class="module-title">What is a qubit?</h2>
+        <div class="module-text">
+          <p>
+            A classical bit is either <strong>0</strong> or <strong>1</strong>. A quantum bit (<strong>qubit</strong>)
+            can be in a superposition of both basis states:
+          </p>
+          <div class="dirac-formula">|ψ⟩ = α|0⟩ + β|1⟩</div>
+          <p>
+            α and β are complex amplitudes with <strong>|α|² + |β|² = 1</strong>. When you measure, you get 0 with
+            probability |α|² and 1 with probability |β|².
+          </p>
+          <div class="game-callout">
+            <strong>In the game:</strong> every level has a target qubit. The exit only opens once that qubit is
+            likely enough (or certain) to read the value the exit asks for.
           </div>
         </div>
       </section>
 
-      <!-- 2. Superposition & Hadamard Gate -->
+      <!-- 2. Hadamard -->
       <section class="glass-panel module-card">
         <div class="module-number">MODULE 02</div>
-        <h2 class="module-title">Superposition & The Hadamard Gate (H)</h2>
-        <div class="module-body">
-          <div class="module-text">
-            <p>
-              The <strong>Hadamard (H)</strong> gate is the fundamental quantum gate for generating superposition. It transforms pure computational basis states into equal linear combinations:
-            </p>
-            <div class="dirac-formula" style="margin: 12px 0;">
-              H|0⟩ = (|0⟩ + |1⟩) / √2 &nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp; H|1⟩ = (|0⟩ - |1⟩) / √2
-            </div>
-            <p>
-              This produces an exact <strong>50% probability</strong> of measuring |0⟩ and a <strong>50% probability</strong> of measuring |1⟩.
-            </p>
-            <div class="game-callout">
-              <strong>Game Mechanics:</strong> Applying H to a closed door creates an oscillating translucent barrier with 50% passage probability.
+        <h2 class="module-title">Superposition and the Hadamard gate (H)</h2>
+        <div class="module-text">
+          <p>The Hadamard gate turns a basis state into an equal superposition:</p>
+          <div class="dirac-formula">H|0⟩ = (|0⟩ + |1⟩) / √2 &nbsp;&nbsp;|&nbsp;&nbsp; H|1⟩ = (|0⟩ − |1⟩) / √2</div>
+          <p>
+            That gives a <strong>50 / 50</strong> chance of measuring 0 or 1. Apply H twice and you are back to |0⟩,
+            because H undoes itself.
+          </p>
+          <div class="game-callout">
+            <strong>In the game:</strong> H is the quickest way to move a qubit off 0% toward the exit's target.
+          </div>
+        </div>
+        <div class="tg-demo" data-qubits="1" aria-label="Hadamard demo">
+          <div class="tg-head">
+            <span class="tg-title">Try it</span>
+            <div class="tg-actions">
+              <button class="btn-quantum tg-btn" type="button" data-op="H:0">Apply H</button>
+              <button class="tg-plain tg-btn" type="button" data-op="reset">Reset</button>
             </div>
           </div>
-
-          <!-- Interactive Demo Widget -->
-          <div class="interactive-widget">
-            <div class="widget-header">
-              <span>Interactive Qiskit Demo: Hadamard</span>
-              <button id="btnDemoH" class="btn-quantum" style="padding: 4px 10px; font-size: 11px;">Apply H Gate ⚡</button>
-            </div>
-            <div class="widget-output">
-              <span class="hud-label">Output State:</span>
-              <div id="demoHState" class="dirac-formula" style="margin: 6px 0;">|0⟩ (100% |0⟩)</div>
-            </div>
-          </div>
+          <div class="tg-out"></div>
         </div>
       </section>
 
-      <!-- 3. Pauli-X Bit Flip Gate -->
+      <!-- 3. Pauli-X -->
       <section class="glass-panel module-card">
         <div class="module-number">MODULE 03</div>
-        <h2 class="module-title">Pauli-X Gate (Quantum NOT)</h2>
-        <div class="module-body">
-          <div class="module-text">
-            <p>
-              The <strong>Pauli-X</strong> gate acts as the quantum equivalent of the classical NOT inverter. It flips the computational basis states:
-            </p>
-            <div class="dirac-formula" style="margin: 12px 0;">X|0⟩ = |1⟩ &nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp; X|1⟩ = |0⟩</div>
-            <div class="game-callout">
-              <strong>Game Mechanics:</strong> Use the Pauli-X gate to invert locked doors from |0⟩ (Closed) directly to |1⟩ (100% Open).
+        <h2 class="module-title">Pauli-X, the quantum NOT</h2>
+        <div class="module-text">
+          <p>The X gate swaps the two basis states, just like a classical NOT:</p>
+          <div class="dirac-formula">X|0⟩ = |1⟩ &nbsp;&nbsp;|&nbsp;&nbsp; X|1⟩ = |0⟩</div>
+          <div class="game-callout">
+            <strong>In the game:</strong> when the exit needs |1⟩ and your qubit is sitting at |0⟩, one X takes it
+            straight to 100%.
+          </div>
+        </div>
+        <div class="tg-demo" data-qubits="1" aria-label="Pauli-X demo">
+          <div class="tg-head">
+            <span class="tg-title">Try it</span>
+            <div class="tg-actions">
+              <button class="btn-quantum tg-btn" type="button" data-op="X:0">Apply X</button>
+              <button class="tg-plain tg-btn" type="button" data-op="reset">Reset</button>
             </div>
           </div>
-
-          <div class="interactive-widget">
-            <div class="widget-header">
-              <span>Interactive Qiskit Demo: Pauli-X</span>
-              <button id="btnDemoX" class="btn-quantum" style="padding: 4px 10px; font-size: 11px;">Apply X Gate ⚡</button>
-            </div>
-            <div class="widget-output">
-              <span class="hud-label">Output State:</span>
-              <div id="demoXState" class="dirac-formula" style="margin: 6px 0;">|0⟩ (100% |0⟩)</div>
-            </div>
-          </div>
+          <div class="tg-out"></div>
         </div>
       </section>
 
-      <!-- 4. Phase & The Pauli-Z Gate -->
+      <!-- 4. Phase / Z -->
       <section class="glass-panel module-card">
         <div class="module-number">MODULE 04</div>
-        <h2 class="module-title">Relative Phase & Pauli-Z Gate</h2>
-        <div class="module-body">
-          <div class="module-text">
-            <p>
-              The <strong>Pauli-Z</strong> gate is a phase-flip operation. It leaves |0⟩ unchanged while multiplying |1⟩ by a phase factor of -1 (e^(iπ)):
-            </p>
-            <div class="dirac-formula" style="margin: 12px 0;">Z|0⟩ = |0⟩ &nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp; Z|1⟩ = -|1⟩</div>
-            <p>
-              While standard measurement probabilities (|α|²) remain unchanged, relative phase is crucial for causing <strong>constructive or destructive interference</strong> when combined with subsequent Hadamard gates.
-            </p>
+        <h2 class="module-title">Phase and the Pauli-Z gate</h2>
+        <div class="module-text">
+          <p>Z leaves |0⟩ alone and flips the sign of |1⟩:</p>
+          <div class="dirac-formula">Z|0⟩ = |0⟩ &nbsp;&nbsp;|&nbsp;&nbsp; Z|1⟩ = −|1⟩</div>
+          <p>
+            On its own Z does not change any probability, only the <strong>phase</strong>. But phase decides how
+            amplitudes interfere: H, then Z, then H turns |0⟩ into |1⟩ with certainty.
+          </p>
+          <div class="game-callout">
+            <strong>In the game:</strong> watch the phase column. A gate that leaves the exit probability unchanged
+            can still set up the next H to land exactly where you need it.
           </div>
+        </div>
+        <div class="tg-demo" data-qubits="1" aria-label="Phase demo">
+          <div class="tg-head">
+            <span class="tg-title">Try H, Z, H</span>
+            <div class="tg-actions">
+              <button class="btn-quantum tg-btn" type="button" data-op="H:0">Apply H</button>
+              <button class="btn-quantum tg-btn" type="button" data-op="Z:0">Apply Z</button>
+              <button class="tg-plain tg-btn" type="button" data-op="reset">Reset</button>
+            </div>
+          </div>
+          <div class="tg-out"></div>
         </div>
       </section>
 
-      <!-- 5. Quantum Entanglement & CNOT -->
+      <!-- 5. Entanglement -->
       <section class="glass-panel module-card">
         <div class="module-number">MODULE 05</div>
-        <h2 class="module-title">Entanglement & Controlled-NOT (CNOT)</h2>
-        <div class="module-body">
-          <div class="module-text">
-            <p>
-              The <strong>CNOT (Controlled-NOT)</strong> gate inverts the target qubit if and only if the control qubit is in state |1⟩. Applying H on q0 followed by CNOT(q0, q1) produces the maximally entangled <strong>Bell state</strong>:
-            </p>
-            <div class="dirac-formula" style="margin: 12px 0;">|Φ⁺⟩ = (|00⟩ + |11⟩) / √2</div>
-            <div class="game-callout">
-              <strong>Game Mechanics:</strong> Entangled doors A and B are physically synchronized. Measuring door A immediately reveals the state of door B.
+        <h2 class="module-title">Entanglement and CNOT</h2>
+        <div class="module-text">
+          <p>
+            CNOT flips the target qubit only when the control qubit is |1⟩. Put the control in superposition with H
+            first, then CNOT, and you get a <strong>Bell state</strong>:
+          </p>
+          <div class="dirac-formula">|Φ⁺⟩ = (|00⟩ + |11⟩) / √2</div>
+          <p>The two qubits now always agree when measured, even though each one alone is a coin flip.</p>
+          <div class="game-callout">
+            <strong>In the game:</strong> later levels have exits that only open when the target qubit is
+            entangled with its partner.
+          </div>
+        </div>
+        <div class="tg-demo" data-qubits="2" aria-label="Bell state demo">
+          <div class="tg-head">
+            <span class="tg-title">Build a Bell pair</span>
+            <div class="tg-actions">
+              <button class="btn-quantum tg-btn" type="button" data-op="H:0">H on q0</button>
+              <button class="btn-quantum tg-btn" type="button" data-op="CNOT:0:1">CNOT q0 to q1</button>
+              <button class="tg-plain tg-btn" type="button" data-op="reset">Reset</button>
             </div>
           </div>
-
-          <div class="interactive-widget">
-            <div class="widget-header">
-              <span>Interactive Qiskit Demo: Bell State</span>
-              <button id="btnDemoBell" class="btn-quantum" style="padding: 4px 10px; font-size: 11px;">Create Bell Pair ⚡</button>
-            </div>
-            <div class="widget-output">
-              <span class="hud-label">Output State:</span>
-              <div id="demoBellState" class="dirac-formula" style="margin: 6px 0;">|00⟩</div>
-            </div>
-          </div>
+          <div class="tg-out"></div>
         </div>
       </section>
 
-      <!-- 6. Wavefunction Collapse -->
+      <!-- 6. Measurement -->
       <section class="glass-panel module-card">
         <div class="module-number">MODULE 06</div>
-        <h2 class="module-title">Wavefunction Collapse & Strategic Measurement</h2>
-        <div class="module-body">
-          <div class="module-text">
-            <p>
-              Quantum measurement is a non-reversible physical projection. When a superposition is measured, it immediately collapses into one of its definite basis eigenstates according to Born's rule:
-            </p>
-            <div class="dirac-formula" style="margin: 12px 0;">P(0) = |α|² &nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp; P(1) = |β|²</div>
-            <div class="game-callout">
-              <strong>Game Mechanics:</strong> Each sector provides a strategic measurement budget. Measuring collapses probabilistic barriers permanently into definite open or closed states.
-            </div>
+        <h2 class="module-title">Measurement and collapse</h2>
+        <div class="module-text">
+          <p>
+            Measuring a qubit forces it to pick 0 or 1, with odds given by the Born rule. After that the
+            superposition is gone:
+          </p>
+          <div class="dirac-formula">P(0) = |α|² &nbsp;&nbsp;|&nbsp;&nbsp; P(1) = |β|²</div>
+          <div class="game-callout">
+            <strong>In the game:</strong> measuring costs energy and each level allows only a few. It is a gamble
+            unless the odds are already on your side.
           </div>
         </div>
+        <div class="tg-demo" data-qubits="1" aria-label="Measurement demo">
+          <div class="tg-head">
+            <span class="tg-title">Superpose, then measure</span>
+            <div class="tg-actions">
+              <button class="btn-quantum tg-btn" type="button" data-op="H:0">Apply H</button>
+              <button class="btn-quantum tg-btn" type="button" data-op="M:0">Measure</button>
+              <button class="tg-plain tg-btn" type="button" data-op="reset">Reset</button>
+            </div>
+          </div>
+          <div class="tg-out"></div>
+        </div>
       </section>
+
+      <div class="tutorial-next">
+        <a class="btn-quantum" href="/lab?preset=bell">Open the Quantum Lab</a>
+        <a class="tg-plain" href="/levels">Play the levels</a>
+      </div>
     </div>
   </main>
 
   <script>
-    import { quantumClient } from '../lib/api/quantumClient';
     import { QuantumSim } from '../lib/game/quantumSim';
 
-    document.addEventListener('DOMContentLoaded', () => {
-      async function simulateCircuit(numQubits: number, gates: { gate: string; target: number; control?: number }[]) {
-        try {
-          const res = await quantumClient.executeArbitraryCircuit(numQubits, gates);
-          return res.state_info.dirac_notation;
-        } catch {
-          const sim = new QuantumSim(numQubits);
-          for (const g of gates) {
-            sim.gate(g.gate, g.target, g.control ?? null);
-          }
-          return sim.stateInfo().dirac_notation;
-        }
+    const newSeed = () => Math.floor(Math.random() * 1e9) + 1;
+
+    function setupDemo(root: HTMLElement) {
+      const n = parseInt(root.dataset.qubits || '1', 10);
+      const out = root.querySelector<HTMLElement>('.tg-out')!;
+      let sim = new QuantumSim(n, newSeed());
+      let steps: string[] = [];
+
+      function render() {
+        const info = sim.stateInfo();
+        const rows = info.basis_states
+          .map((b) => {
+            const pct = b.probability * 100;
+            const zero = b.probability < 1e-6;
+            return `<div class="tg-row${zero ? ' is-zero' : ''}">
+              <span class="tg-ket">|${b.binary}⟩</span>
+              <div class="tg-track"><div class="tg-fill" style="width:${pct}%"></div></div>
+              <span class="tg-pct">${pct.toFixed(0)}%</span>
+              <span class="tg-phase">${zero ? '' : `phase ${Math.round(b.phase_degrees) % 360}°`}</span>
+            </div>`;
+          })
+          .join('');
+        const start = `|${'0'.repeat(n)}⟩`;
+        out.innerHTML = `
+          <div class="tg-steps">${steps.length ? `Steps: ${steps.join(', ')}` : `Starting state ${start}`}</div>
+          <div class="dirac-formula tg-state">|ψ⟩ = ${info.dirac_notation}</div>
+          ${rows}`;
       }
 
-      // Demo H Gate
-      let hActive = false;
-      const btnDemoH = document.getElementById('btnDemoH');
-      const demoHState = document.getElementById('demoHState');
-
-      btnDemoH?.addEventListener('click', async () => {
-        hActive = !hActive;
-        const gates = hActive ? [{ gate: 'H', target: 0 }] : [];
-        const dirac = await simulateCircuit(1, gates);
-        if (demoHState) demoHState.textContent = dirac;
-        btnDemoH.textContent = hActive ? 'Reset |0⟩ ↺' : 'Apply H Gate ⚡';
+      root.querySelectorAll<HTMLButtonElement>('[data-op]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const [op, a, b] = (btn.dataset.op || '').split(':');
+          if (op === 'reset') {
+            sim = new QuantumSim(n, newSeed());
+            steps = [];
+          } else if (op === 'M') {
+            const { outcome } = sim.measure(+a);
+            steps.push(`measured ${outcome}`);
+          } else if (op === 'CNOT') {
+            sim.gate('CNOT', +b, +a);
+            steps.push(`CNOT q${a} to q${b}`);
+          } else {
+            sim.gate(op, +a, null);
+            steps.push(n > 1 ? `${op} q${a}` : op);
+          }
+          render();
+        });
       });
 
-      // Demo X Gate
-      let xActive = false;
-      const btnDemoX = document.getElementById('btnDemoX');
-      const demoXState = document.getElementById('demoXState');
+      render();
+    }
 
-      btnDemoX?.addEventListener('click', async () => {
-        xActive = !xActive;
-        const gates = xActive ? [{ gate: 'X', target: 0 }] : [];
-        const dirac = await simulateCircuit(1, gates);
-        if (demoXState) demoXState.textContent = dirac;
-        btnDemoX.textContent = xActive ? 'Reset |0⟩ ↺' : 'Apply X Gate ⚡';
-      });
+    function init() {
+      document.querySelectorAll<HTMLElement>('.tg-demo').forEach(setupDemo);
+    }
 
-      // Demo Bell State
-      let bellActive = false;
-      const btnDemoBell = document.getElementById('btnDemoBell');
-      const demoBellState = document.getElementById('demoBellState');
-
-      btnDemoBell?.addEventListener('click', async () => {
-        bellActive = !bellActive;
-        const gates = bellActive
-          ? [
-              { gate: 'H', target: 0 },
-              { gate: 'CNOT', target: 1, control: 0 },
-            ]
-          : [];
-        const dirac = await simulateCircuit(2, gates);
-        if (demoBellState) demoBellState.textContent = dirac;
-        btnDemoBell.textContent = bellActive ? 'Reset |00⟩ ↺' : 'Create Bell Pair ⚡';
-      });
-    });
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+    else init();
   </script>
 
-  <style>
+  <style is:global>
     .tutorial-container {
       max-width: 900px;
       margin: 0 auto;
-      padding: 40px 20px;
+      padding: 36px 16px 60px;
     }
 
     .tutorial-header {
       text-align: center;
-      margin-bottom: 36px;
-    }
-
-    .modules-stack {
+      margin-bottom: 32px;
       display: flex;
       flex-direction: column;
-      gap: 20px;
+      align-items: center;
+      gap: 10px;
     }
+    .tutorial-header h1 { font-size: clamp(24px, 4vw, 32px); margin: 0; }
+    .tutorial-intro { color: var(--muted); font-size: 14px; max-width: 640px; margin: 0; line-height: 1.6; }
 
-    .module-card {
-      padding: 24px;
-    }
+    .modules-stack { display: flex; flex-direction: column; gap: 20px; }
+    .module-card { padding: 24px; }
 
     .module-number {
       font-family: var(--font-mono);
       font-size: 11px;
       font-weight: 700;
-      color: var(--quantum-cyan);
+      color: var(--accent);
       letter-spacing: 0.1em;
       margin-bottom: 6px;
     }
-
-    .module-title {
-      font-size: 20px;
-      color: #ffffff;
-      margin-bottom: 14px;
-    }
-
-    .module-text {
-      font-size: 14px;
-      line-height: 1.6;
-      color: #cbd5e1;
-    }
+    .module-title { font-size: 20px; margin: 0 0 14px; }
+    .module-text { font-size: 14px; line-height: 1.65; color: var(--text); }
+    .module-text p { margin: 0 0 10px; }
+    .module-text .dirac-formula { margin: 12px 0; }
 
     .game-callout {
-      background: rgba(0, 240, 255, 0.06);
-      border-left: 3px solid var(--quantum-cyan);
+      background: var(--bg);
+      border-left: 3px solid var(--accent);
       padding: 10px 14px;
-      border-radius: 0 6px 6px 0;
+      border-radius: 0 4px 4px 0;
       margin-top: 12px;
       font-size: 13px;
-      color: #e0f2fe;
+      color: var(--text);
     }
 
-    .interactive-widget {
+    .tg-demo {
       margin-top: 16px;
-      background: rgba(0, 0, 0, 0.35);
-      border: 1px solid var(--border-subtle);
-      border-radius: 8px;
+      background: var(--bg);
+      border: 2px solid var(--border);
+      border-radius: 4px;
       padding: 14px;
     }
-
-    .widget-header {
+    .tg-head {
       display: flex;
+      flex-wrap: wrap;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 8px;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .tg-title { font-family: var(--font-mono); font-size: 12px; color: var(--accent); text-transform: uppercase; letter-spacing: 0.06em; }
+    .tg-actions { display: flex; flex-wrap: wrap; gap: 6px; }
+    .tg-btn { padding: 6px 12px; font-size: 12px; }
+
+    .tg-plain {
       font-family: var(--font-mono);
       font-size: 12px;
-      color: var(--quantum-cyan);
+      color: var(--text);
+      background: var(--panel-2, var(--bg));
+      border: 2px solid var(--border);
+      border-radius: 4px;
+      padding: 6px 12px;
+      cursor: pointer;
+      text-decoration: none;
+    }
+    .tg-plain:hover { border-color: var(--accent); }
+
+    .tg-steps { font-family: var(--font-mono); font-size: 12px; color: var(--muted); margin-bottom: 6px; }
+    .tg-state { margin: 0 0 10px; word-break: break-word; }
+    .tg-row {
+      display: grid;
+      grid-template-columns: 44px minmax(40px, 1fr) 44px 84px;
+      align-items: center;
+      gap: 8px;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      margin-top: 6px;
+    }
+    .tg-row.is-zero { opacity: 0.45; }
+    .tg-ket { color: var(--accent); font-weight: 700; }
+    .tg-track { height: 12px; background: var(--panel); border: 1px solid var(--border); border-radius: 2px; overflow: hidden; }
+    .tg-fill { height: 100%; background: var(--accent); transition: width 0.25s ease; }
+    .tg-pct { text-align: right; }
+    .tg-phase { color: var(--muted); font-size: 11px; }
+
+    .tutorial-next { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 8px; }
+    .tutorial-next a { text-decoration: none; padding: 10px 18px; font-size: 13px; }
+
+    @media (max-width: 480px) {
+      .module-card { padding: 16px; }
+      .tg-row { grid-template-columns: 40px minmax(30px, 1fr) 40px; }
+      .tg-phase { display: none; }
     }
   </style>
 </body>

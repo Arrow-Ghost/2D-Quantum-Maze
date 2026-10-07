@@ -43,7 +43,7 @@
 
       <!-- Measurement Event Pulse -->
       <div class="collapse-action-col">
-        <div class="meas-symbol-icon">⚡ M</div>
+        <div class="meas-symbol-icon">M</div>
         <span class="meas-action-text">PROJECTION OPERATOR</span>
       </div>
 
@@ -62,7 +62,7 @@
     <!-- Educational Footer Note -->
     <div class="collapse-notes-footer">
       <div class="note-item">
-        <span class="note-bullet">◈</span>
+        <span class="note-bullet" aria-hidden="true"></span>
         <span>Measurement consumes quantum energy budget and permanently freezes qubit until new unitary gates are applied.</span>
       </div>
     </div>
@@ -267,7 +267,11 @@
   }
 
   .note-bullet {
-    color: var(--quantum-emerald);
+    flex: none;
+    width: 8px;
+    height: 8px;
+    margin-top: 0.5em;
+    background: var(--quantum-emerald);
   }
 
   @media (max-width: 768px) {
